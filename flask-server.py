@@ -1,0 +1,639 @@
+from __init__ import *
+from flask import Flask, render_template, request, render_template_string, make_response, jsonify
+from flask_socketio import SocketIO
+from models import *
+from api.main import api_bp
+import random
+from decimal import Decimal, ROUND_DOWN
+from apscheduler.schedulers.background import BackgroundScheduler
+import time
+import json
+import threading
+from bs4 import BeautifulSoup
+#from pyrog_client import get_random_members_of_chat
+import re
+#from payments import create_payment_for_user
+import jwt 
+def replace_braces_with_empty_string(html):
+    cleaned_html = re.sub(r'[{}$@]', '', html)
+    return cleaned_html
+    return str(soup)
+
+config_for_admin = {
+    'login': 'admin',
+    'password':"DHICvBAAS0ue"
+}
+app.register_blueprint(api_bp, url_prefix='/api')
+fake_bets = []
+
+current_multiplier = 1
+users_and_avatars = {'Эмил': 'https://res.cloudinary.com/du73oow82/image/upload/v1707406838/ujaqwypgrispgiptrjx9.jpg', 'ДОКУМЕНТ': 'https://res.cloudinary.com/du73oow82/image/upload/v1707406839/ef7odcaabmojrofncyvk.jpg', '𝐌𝐞𝐧𝐝𝐚 𝐪𝐨𝐥𝐦𝐚𝐝𝐢 𝐝𝐢𝐥 ❤️': 'https://res.cloudinary.com/du73oow82/image/upload/v1707406840/ppqit540z9zgtonwvhbm.jpg', 'Qwerty': 'https://res.cloudinary.com/du73oow82/image/upload/v1707406842/rjpgsxltppsnduysacby.jpg', 'Рустам': 'https://res.cloudinary.com/du73oow82/image/upload/v1707406844/ohzez5sn6vkzjuxduibl.jpg', 'Gulmira': 'https://res.cloudinary.com/du73oow82/image/upload/v1707406845/wqboqod0ewjlm6sl5frg.jpg', 'Лиля': 'https://res.cloudinary.com/du73oow82/image/upload/v1707406847/vgg5lteawwm8i7jleaun.jpg', '𓄂༗࿐ Шохрухбе 𓄂༗࿐': 'https://res.cloudinary.com/du73oow82/image/upload/v1707406848/quh5u11e2xsc7pg7ptvv.jpg', 'Бахтиёр': 'https://res.cloudinary.com/du73oow82/image/upload/v1707406849/qddpautopk6py0jlv3qt.jpg', '𓃬 𖤓 ДеД 𖤓 ♚Шох♚ Ака 𓃬': 'https://res.cloudinary.com/du73oow82/image/upload/v1707406851/ogkyynvcrkne3zbzjj6d.jpg'}
+
+
+def generate_token(login, password):
+    token = jwt.encode({'login': login, 'password': password}, 'secret_key', algorithm='HS256')
+    return token
+@app.route('/authadmin', methods=['POST'])
+def authadmin():
+    data = request.json
+
+    login = data['login']
+    password = data['password']
+    response = make_response('ok')
+ 
+    if login == config_for_admin['login'] and password == config_for_admin['password']:
+        response.set_cookie('aero', generate_token(login, password))
+
+    return response
+
+session_for_api = SessionFactory()
+
+@app.route('/get_stats', methods=['POST'])
+def get_stats():
+    cookie_value = request.cookies.get('aero')
+    
+    with session_for_api.begin():
+            all_users = session.query(User).all()
+            bets = session.query(CrashBets).all()
+            games = session.query(Crash).all()
+            settings=session.query(Settings).last()
+    users_data = []
+    bets_data = []
+    games_data = []
+
+    for user in all_users:
+        users_data.append({column.name: getattr(user, column.name) for column in User.__table__.columns if column.name != 'created_at'})
+    for bet in bets:
+        bets_data.append({column.name: getattr(bet, column.name) for column in CrashBets.__table__.columns if column.name != 'created_at'})
+    for game in games:
+        games_data.append({column.name: getattr(game, column.name) for column in Crash.__table__.columns if column.name != 'created_at'})
+    settings = {column.name: getattr(settings, column.name) for column in Settings.__table__.columns if column.name != 'created_at'}
+    if jwt.decode(cookie_value, "secret_key", algorithms="HS256"):
+        return jsonify({'users_data' :users_data, 'bets_data':bets_data, 'games_data':games_data, 'settings':settings})
+
+@app.route('/')
+def index():
+    return render_template('main_design.html', ip_adress=request.remote_addr, is_game_in_progress=is_any_game_in_progress())
+    #return render_template('new.html', ip_adress=request.remote_addr, is_game_in_progress=is_any_game_in_progress())
+    with open('C:/Users/Юрий/Desktop/gambling/templates/plane.html', 'r', encoding='utf-8') as file:
+        html = file.read()
+    page = replace_braces_with_empty_string(html)
+    return render_template_string(page)
+
+
+@socketio.on('connect')
+def handle_connect():
+    client_sid = request.sid
+
+
+    socketio.emit('message_from_server', {'message': 'Hello, client!'}, room=client_sid )
+@socketio.on('disconnect')
+def handle_disconnect():
+    client_sid = request.sid  
+
+
+@socketio.on('authorize')
+def handle_message(data):
+    with SessionFactory() as session:
+        with session.begin():
+            client_sid = request.sid  
+
+            username = data.get("username")
+            user = session.query(User).filter(User.username == username).first()
+            if user:
+                attributes_dict = {column.name: getattr(user, column.name) for column in User.__table__.columns}
+                payment = session.query(Payments).filter(Payments.user_id == user.id).order_by(Payments.id.desc()).first()
+                if payment:
+                    payment_attributes_dict = {
+    column.name: getattr(payment, column.name)
+    for column in Payments.__table__.columns
+    if column.name != 'created_at'  # Исключаем поле 'created_at'
+}
+                    socketio.emit('successful_authorizing', {"user":attributes_dict, 'payments':payment_attributes_dict}, room=client_sid)
+                    return
+                socketio.emit('successful_authorizing', {"user":attributes_dict}, room=client_sid)
+                return
+            new_user = session.merge( create_new_user(username))
+            attributes_dict = {column.name: getattr(new_user, column.name) for column in User.__table__.columns}
+
+            socketio.emit("successful_authorizing", {"user":attributes_dict}, room=client_sid)
+
+@socketio.on('topUpBalance')
+def top_up_balance_handler(data):
+    with SessionFactory() as session:   
+            with session.begin():
+                client_id = request.sid
+                user_id = data.get('user_id')
+                amount = data.get('amount')
+                user = session.query(User).filter(User.id == user_id).first()
+                if user:
+                    payment, idempotence_key = create_payment_for_user(amount, 'RUB')
+                    if payment:
+                        payment_in_db = Payments(user_id=user.id, amount = float(amount), currency = 'RUB', id_in_yookassa = payment.id, status = payment.status, created_at = datetime.now(), confirmation_token = payment.confirmation.confirmation_token, paid = payment.paid, idempotence_key=str(idempotence_key))
+                        session.add(payment_in_db)
+                        socketio.emit('generate_widget_for_payment', {'confirmation_token':payment.confirmation.confirmation_token}, room=client_id)
+                else:
+                    socketio.emit('error', {'messsage':'you are not authorized'}, room=client_id)
+
+
+
+
+@socketio.on('new_bet')
+def new_bet_handler(data:dict):
+    with SessionFactory() as session:
+        with session.begin():
+            client_sid = request.sid  
+            settings = session.query(Settings).first()
+    
+            game_id = data['game_id']
+            user_id = data['user_id']
+            bet_in_usd = data['bet_in_usd']
+            baltype = data['baltype']
+
+            game = session.query(Crash).filter(Crash.id == game_id).first()
+            user = session.query(User).filter(User.id == user_id).first()
+    
+            if not (user.deposit_balance >= bet_in_usd):
+               
+                        return socketio.emit("not_enough_funds_on_the_balance", {"message":"не хватает средств на балансе!"}, room=client_sid)
+            
+            if game.status == 0:
+                if settings.min_bet > bet_in_usd:
+                    return socketio.emit("not_enough_funds_on_the_balance", {"message":f"Минимальная сумма ставки - {settings.min_bet}"}, room=client_sid)
+                
+                if baltype == 'deposit' and user.deposit_balance>=bet_in_usd and settings.min_bet<=bet_in_usd:
+           
+                    
+                    user.deposit_balance -= bet_in_usd
+                    settings.profit_money += bet_in_usd
+                    game.profit += bet_in_usd
+
+                    new_bet = session.merge(new_bet_create(user_id = user.id, round_id = game.id, price = bet_in_usd,  status = 0, fake = 0, baltype = baltype ))
+               
+                    attributes_dict = {
+    column.name: getattr(new_bet, column.name)
+    for column in CrashBets.__table__.columns
+    if column.name != 'created_at'  # Исключаем поле 'created_at'
+}                   
+              
+                    socketio.emit("successful_bet", attributes_dict, room=client_sid)
+                if baltype == 'ref' and user.referal_balance>=bet_in_usd and settings.min_bet<=bet_in_usd:
+                    user.referal_balance -= bet_in_usd
+                    new_bet = session.merge(new_bet_create(user_id = user.id, round_id = game.id, price = bet_in_usd,  status = 0, fake = 0, baltype = baltype ))
+                   
+                    attributes_dict = {
+    column.name: getattr(new_bet, column.name)
+    for column in CrashBets.__table__.columns
+    if column.name != 'created_at'  # Исключаем поле 'created_at'
+}
+                    socketio.emit("successful_bet", attributes_dict, room=client_sid)
+                if baltype == 'bonus' and user.bonus_balance>=bet_in_usd and settings.min_bet<=bet_in_usd:
+                    user.bonus_balance -= bet_in_usd
+                    new_bet = session.merge(new_bet_create(user_id = user.id, round_id = game.id, price = bet_in_usd,  status = 0, fake = 0, baltype = baltype ))
+                   
+         
+                    attributes_dict = {
+    column.name: getattr(new_bet, column.name)
+    for column in CrashBets.__table__.columns
+    if column.name != 'created_at'  # Исключаем поле 'created_at'
+}
+                    socketio.emit("successful_bet", attributes_dict, room=client_sid)
+            elif game.status == 1:
+                socketio.emit("impossible_to_make_a_bet", {"message":"The game already in process"}, room=client_sid)
+            elif game.status ==2:
+                socketio.emit("impossible_to_make_a_bet", {"message":"The game is already finished"}, room=client_sid)
+@socketio.on('pickupwinning')
+def pickupwinning_handler(data):  
+   
+    with SessionFactory() as session:
+        with session.begin():
+            client_sid = request.sid  
+
+            bet = session.query(CrashBets).filter(CrashBets.id == data['bet']).first()
+            current_game = get_current_game()
+            current_game = session.merge(current_game)
+            settings = session.query(Settings).first()
+            if bet.round_id != current_game.id:
+                return 
+            if bet.status == 1:
+                return socketio.emit("error", {"message":"Вы уже проиграли в этой игре"}, room=client_sid)
+            if bet.status == 2:
+                return socketio.emit("error", {"message":"Вы уже забрали свой выигрыш!"}, room=client_sid)
+            bet.status = 2
+            user = session.query(User).filter(User.id == bet.user_id).first()
+            multiplier_at_the_moment = current_multiplier
+            win = bet.price * multiplier_at_the_moment
+            if bet.baltype == 'deposit':
+                user.deposit_balance += win
+                current_game.profit -= win
+                user.total_amount_of_money_won += win
+                settings.profit_money -= win
+            else:
+                user.bonus_balance += win
+            user.number_of_wins += 1
+            
+            
+            bet.status = 2
+            bet.won += win
+            attributes_dict = {column.name: getattr(user, column.name) for column in User.__table__.columns if column.name != 'created_at'}
+            socketio.emit("you_got_new_winning", {"amount":win, "multiplier_at_the_moment": multiplier_at_the_moment, "user":attributes_dict , "baltype":bet.baltype}, room=client_sid)
+
+
+
+
+@socketio.on('get_previous_xes')
+def return_previous_xes():
+    client_sid = request.sid
+    previous_games =  session.query(Crash).filter(Crash.status == 2).all() 
+    previous_xes = []
+    if len(previous_games) >= 20:
+        
+        for game in previous_games[:20]:
+            previous_xes.append(game.multiplier)
+    
+        return socketio.emit('previous_xes', {'data':previous_xes }, room=client_sid)    
+    
+    for game in previous_games:
+        previous_xes.append(game.multiplier)    
+    return  socketio.emit('previous_xes', {'data':previous_xes }, room=client_sid)
+
+
+
+def new_game():
+    game = Crash(status=0)
+    with SessionFactory() as session_for_thread:
+        with session_for_thread.begin():
+        
+            session_for_thread.add(game)
+          
+    return game
+
+def is_any_game_in_progress():
+    with SessionFactory() as session:
+        with session.begin():
+            games_that_in_process = session.query(Crash).filter(Crash.status == 1).all()
+            if games_that_in_process:
+                return True
+            return False
+
+def get_current_game():
+    with SessionFactory() as session_for_thread:
+        with session_for_thread.begin():
+            game = session.query(Crash).order_by(Crash.id.desc()).first()
+    return game
+
+
+def check_and_execute():
+    game_list = []
+    connection_pool = engine.pool
+
+# Получите количество активных соединений
+    active_connections = connection_pool.checkedout()
+
+    with SessionFactory() as session_for_thread:
+        with session_for_thread.begin():
+   
+            games_that_have_not_begin_yet = session_for_thread.query(Crash).filter(Crash.status == 0).all()
+            games_that_in_process = session_for_thread.query(Crash).filter(Crash.status == 1).all()
+
+
+        if (not games_that_have_not_begin_yet and not games_that_in_process): #and session.query(Crash).all():
+    
+               
+
+            with session_for_thread.begin():
+                game = new_game()
+                game = session_for_thread.merge(game)
+                games= session_for_thread.query(Crash).all()
+                game_list.append(game)
+       
+         
+            used_users = []
+            
+      
+            for item in users_and_avatars.items():
+                username = item[0]
+          
+                        
+           
+                if username not in used_users:
+                    fake_bets.append( {username:users_and_avatars[username]})
+                    used_users.append(username)
+            used_bets = []
+            for i in range(61):
+                """ if i %10 == 0:
+              
+                        random_num = random.random()
+                        if random_num > 0.3:
+                            print('id', game.id)
+                            bet = new_bet_create(1, game.id, random.randint(1, 10),status=0,fake=0,baltype='deposit') """
+
+                bets_to_send = []
+                num_elements = random.randint(0, 2)
+                random_elements = random.sample(fake_bets, num_elements)
+                for element in random_elements:
+                    if element not in used_bets and (i%2==0):
+                        used_bets.append(element)
+                        bets_to_send.append(element)
+
+                socketio.emit("time_remaining", {"seconds_remained" : i, "for_game":game.id, "fake_bets":bets_to_send})
+                
+                time.sleep(0.1)
+
+            
+                
+            socketio.emit("startgame", { "game_id":game.id})
+
+        return {"round_id":game_list[0].id}, session_for_thread
+    start_game({"round_id":game.id}, session_for_thread)
+                
+
+            
+
+
+""" def scheduler():
+    broadcast_game_is_running = False
+    while True:
+        
+       
+        if not broadcast_game_is_running:
+            print('залез')  
+           
+            broadcast_game_is_running = True  
+            check_and_execute()
+    """
+
+
+
+
+def create_new_user(username):
+    with SessionFactory() as session:   
+            with session.begin():
+                new_user = User(username=username, deposit_balance=1000, bonus_balance=1000)
+                session.add(new_user)
+    return new_user
+
+def process_crashed_bets(crashed_bets):
+    with SessionFactory() as session:   
+            with session.begin():
+                for bet in crashed_bets:
+                    user = session.query(User).filter(User.id==bet.user_id).first()
+                    game = session.query(Crash).filter(Crash.id == bet.round_id).first()
+                    if bet.baltype == 'deposit':
+                  
+                        user.total_amount_of_money_losed += bet.price
+                        user.number_of_loses +=1
+    return crashed_bets
+
+session_for_tests= SessionFactory()
+def test_pick(current_multiplier, game):
+    with session_for_tests.begin():
+        try:
+                        game = session.merge(game)
+                        bets_all = session_for_tests.query(CrashBets).filter(CrashBets.round_id == game.id).filter(CrashBets.status == 0).all()
+                        random_bet = random.choice(bets_all)
+                        random_bet.won = random_bet.price * current_multiplier
+                        random_bet.status =2 
+        except:
+                    'ok'
+
+
+def broadcast_current_game_handler(session):
+    if len(multipliers) < 101:
+        print(len(multipliers), multipliers)
+    
+    def wrapper():
+        with session.begin():
+            #client_sid = request.sid
+            game = session.query(Crash).filter(Crash.status == 1).order_by(Crash.id.desc()).first()
+    
+            if not game:
+                return socketio.emit("wait_for_next_game", {})
+            multiplier = game.multiplier
+            global current_multiplier
+            list_of_multipliers = [1]
+            while list_of_multipliers[-1] < multiplier:
+                list_of_multipliers.append(list_of_multipliers[-1]+0.01)
+            for i in range(list_of_multipliers.index(current_multiplier), len(list_of_multipliers)):
+                    
+                        
+                current_multiplier = list_of_multipliers[i]
+                """ chance = random.random()
+                if chance >= 0.05:
+                    test_pick(current_multiplier=current_multiplier, game=game) """
+                socketio.emit('current_game', {'game_id':game.id, "current_multiplier":list_of_multipliers[i]})
+                if 10>current_multiplier > 4:
+                    time.sleep(0.01)
+                elif current_multiplier >10:
+                    time.sleep(0.001)
+                else:
+                    time.sleep(0.1)
+            make_bet_status_equal_to_one(game.id)
+                
+            all_bets_that_are_crashed = session.query(CrashBets).filter(CrashBets.round_id == game.id).filter(CrashBets.status == 1).all()
+            all_bets_that_are_crashed = process_crashed_bets(all_bets_that_are_crashed)
+            if  all_bets_that_are_crashed:
+                for bet in all_bets_that_are_crashed:
+                            
+                        
+                    user = session.query(User).filter(User.id==bet.user_id).first()
+
+                    attributes_dict = {column.name: getattr(user, column.name) for column in User.__table__.columns if column.name != 'created_at'}
+                            
+                    socketio.emit("crash", {"amount": bet.price, "user":attributes_dict, 'baltype':bet.baltype})
+            else:
+                socketio.emit('crash')
+                    
+                    
+            current_multiplier = 1
+            if not (game.status == 2):
+                        
+                game.status = 2
+
+
+                
+            
+
+    
+    wrapper()
+    connection_pool = engine.pool
+
+# Получите количество активных соединений
+    active_connections = connection_pool.checkedout()
+
+    broadcast_game_is_running = False
+    
+def make_bet_status_equal_to_one(game_id):
+    with SessionFactory() as session:
+        with session.begin():
+       
+            
+            all_bets_that_are_crashed = session.query(CrashBets).filter(CrashBets.round_id == game_id).filter(CrashBets.status == 0).all()
+            for bet in all_bets_that_are_crashed:
+                bet.status = 1
+                
+@socketio.on('get_balance')
+def get_balance_handler(data):
+    with SessionFactory() as session:
+        with session.begin():
+            client_sid = request.sid  
+            user = session.query(User).filter(User.id==data.user_id).first()
+            if user:
+                return socketio.emit("users_balance",{"deposit_balance":user.deposit_balance, "referal_balance":user.referal_balance, "bonus_balance":user.bonus_balance}, room=client_sid)
+            return socketio.emit("error", {"message":"wrong userid"}, room = client_sid)
+def new_bet_create(user_id, round_id, price, status, fake, baltype):
+    with SessionFactory() as session:
+        with session.begin():
+            settings = session.query(Settings).first()
+            settings.profit_money += price
+            game.profit += price
+            new_bet = CrashBets(user_id = user_id, round_id = round_id, price = price,  status = 0, fake = 0, baltype = baltype )
+            session.add(new_bet)
+    return new_bet
+
+def get_float_handler(round_id):
+    with SessionFactory() as session:
+        with session.begin():
+            last_zero = session.query(Crash).filter(Crash.multiplier==1).order_by(Crash.id.desc()).first()
+            bets_in_db = session.query(CrashBets).filter(CrashBets.round_id==round_id).filter(CrashBets.fake==0).all()
+            settings = session.query(Settings).first()
+            this_game = session.query(Crash).filter(Crash.status == 0).order_by(Crash.id.desc()).first()
+            bets_price = 0
+            for bet in bets_in_db:
+                bets_price += bet.price
+            if settings.profit_money <= 0-(settings.bank_mines*0.2) :
+                return 1
+            
+            if (settings.profit_money <=0 and bets_price > 0):
+                
+                random_float = Decimal(random.uniform(1.3, 1.9)).quantize(Decimal('0.00'), rounding=ROUND_DOWN)
+          
+                return random_float
+            if last_zero:
+                print(last_zero.id)
+                print('ХУЙЙ')
+                if (last_zero.id) >= (this_game.id + random.randint(3,10)):
+                    
+                    return 1
+            if not last_zero or (this_game.id-last_zero.id >= random.randint(5,7)):
+                
+                return 1
+
+            list = []
+            for i in range(50):
+                list.append(1)
+            for i in range(15):
+                list.append(2)
+            for i in range(10):
+                list.append(3)
+            for i in range(9):
+                list.append(4)
+            for i in range(3):
+                list.append(5)
+            for i in range(2):
+                list.append(10)
+            list.append(50)
+            random.shuffle(list)
+            if this_game.multiplier:
+                return this_game.multiplier
+            m = list[random.randint(0, len(list)-1)]
+            if m > 1:
+                m = random.randint(1, m)
+            if m == 1:
+                num =  float(f'{list[0]}.0{random.randint(0,9)}')
+                return  num
+
+            num = float(f'{m}.{random.randint(0,9)}{random.randint(1,9)}')
+            return num
+
+
+multipliers = []
+def start_game(data:dict, session_for_thread):####
+    with session_for_thread.begin():
+        game = session_for_thread.query(Crash).filter(Crash.id == data['round_id']).first()
+
+            
+        if game:
+            game.status = 1
+            game.multiplier = get_float_handler(data['round_id'])  
+            multipliers.append(float(game.multiplier))
+        
+       
+    # Получите количество активных соединений
+    return session_for_thread
+    broadcast_current_game_handler(session_for_thread)
+
+semaphore = threading.Semaphore(value=1)
+def func_for_thread():
+    with semaphore:
+        while True:
+            data, session = check_and_execute()
+            session = start_game(data, session)
+            broadcast_current_game_handler(session)
+if __name__ == '__main__':
+    
+    with SessionFactory() as session:
+        with session.begin():
+            all_setts = session.query(Settings).all()
+            for sett in all_setts:
+                session.delete(sett)
+            games = session.query(Crash).all()
+            settings = Settings(bank_mines=100000)
+            session.add(settings)
+            usersss = session.query(User).all()
+            if usersss:
+                for userrr in usersss:
+                    session.delete(userrr)
+            if games:
+                for game in games:
+                    session.delete(game)
+            bets = session.query(CrashBets).all()
+            if bets:
+                for bet in bets:
+                    session.delete(bet)
+    new_user = session.merge( create_new_user('username'))
+    thread1 = threading.Thread(target=func_for_thread)
+    thread1.start()
+    socketio.run(app, debug=False,allow_unsafe_werkzeug=True, host='0.0.0.0', port=5000)
+    
+    app.run(debug=True,  port=5000, host='0.0.0.0')
+
+'''
+server {
+    listen 443 ssl;
+    server_name host.yuriyzholtov.com;
+
+    ssl_certificate /home/ubuntu/gambling/host-yuriyzholtov-com-Certificate.crt;
+    ssl_certificate_key /home/ubuntu/gambling/host-yuriyzholtov-com-Private-Key.key;
+
+    location / {
+        proxy_pass https://51.20.105.5;  # Порт, на котором работает ваше Flask приложение
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+'''
+
+"""
+server {
+    listen 443 ssl;
+    server_name host.yuriyzholtov.com;
+
+    ssl_certificate /home/ubuntu/gambling/combined_cert.pem;
+    ssl_certificate_key /home/ubuntu/gambling/host-yuriyzholtov-com-Private-Key.key;
+
+    location / {
+        proxy_pass http://127.0.0.1:5000;  # Порт, на котором работает ваше Flask приложение
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+sudo /home/ubuntu/gambling/venv/bin/gunicorn -b 0.0.0.0:5000 -w 4 flask-server:app --certfile=host-yuriyzholtov-com-Certificate.crt --keyfile=host-yuriyzholtov-com-Private-Key.key
+
+
+"""

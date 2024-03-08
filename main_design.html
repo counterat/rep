@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device_width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>  
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+    <title>Document</title>
+    <style>
+        html{
+            font-family: "Roboto";
+            user-select: none; 
+        }
+        body{
+            user-select: none; 
+        }
+    </style>
+    <style>
+        .big-cloud, .small-cloud{
+            z-index: 1;
+        }
+        .notification {
+  position: absolute;
+  bottom: 0%;
+  width: 85%;
+  transition: opacity 5s ease;
+  border: 2px solid #ffffff;
+    border-radius: 15px;
+    left: 50%; /* Расположение слева на 50% ширины контейнера */
+    transform: translateX(-50%); 
+    text-align: center;
+    color: #ffffff;
+font-weight: 500;
+font-family: "Roboto";
+height: 20%;
+display: flex;
+align-items: center;
+justify-content: center;
+z-index: 12;
+opacity: 1;
+  transition: opacity 3s ease; 
+}
+
+.notification.fade-out {
+  opacity: 0; /* Устанавливаем конечное значение прозрачности */
+}
+
+.notification-success{
+    background-color: #3beb70;
+    
+    
+}
+.notification-error{
+    background-color: #fb4926;
+}
+.notification-warning{
+    background-color: #fbc126;
+}
+.notification-blue{
+    background-color: #add2f2;
+}
+
+        .container-for-btns .fakeusers{
+            transition: height 0.3s ease;
+            display: flex;
+            width: 80%;
+            
+        }
+
+        .collapsed {
+    display: none;
+
+    }
+    .faketable{
+        display: flex;
+    }
+
+
+        #col-for-coefs::-webkit-scrollbar{
+            width: 0px;
+        }
+        #frog.jump{
+            animation: jump 1s infinite alternate linear;
+        }
+
+        #coeff:focus{
+            border: none; outline: none;box-shadow: none;
+        }
+        #coeff[type="text"]{
+            font-size: 18px;
+            font-family: 'Roboto';
+            color: #3b3b3b;
+            line-height: 1px;
+font-weight: 500;
+        }
+        #bet-input:focus{
+            border: none; outline: none;box-shadow: none;
+        }
+        #bet-input[type="text"]{
+            font-size: 18px;
+            font-family: 'Roboto';
+            color: #3b3b3b;
+            line-height: 1px;
+font-weight: 500;
+        }
+        .input-group-prepend {
+    margin-right: -11px;
+}
+
+#frog.fly-from-button{
+    animation:jump 1s infinite alternate linear, flyFromBottom 1s ease-out;
+    top: 30%;
+    left: 50%;
+}
+        @keyframes jump {
+  0% { transform: translateY(5%); } /* начальная позиция вверху */
+  100% { transform: translateY(-5%); } /* конечная позиция внизу */
+}
+
+#frog.fly-top-right{
+    animation: flyToTopRight 1s ease-out;
+    top: -20%;
+        left: 120%;
+}
+
+
+@keyframes flyToTopRight{
+    from{
+        top: 30%;
+    left: 50%;
+    transform: rotate(0deg);
+    }
+    to{
+        top: -20%;
+        left: 120%;
+        transform: rotate(90deg);
+    }
+}
+
+@keyframes slideLeftBottom {
+      
+      to { left: -50%; 
+          top:120%;
+      }
+
+      }
+      @keyframes slideLeft{
+        to { left: -50%; 
+          
+      }
+      }
+@keyframes flyFromBottom{
+    from{
+        top: 120%;
+        left: 50%;
+    }
+    to{
+        top: 30%; left: 50%
+    }
+}
+    </style>
+</head>
+<body>
+    <div id="parent-container"></div>
+    <div class="container" >
+        <div class="row" style="margin-top: 25px;">
+            <div class="col-4">
+                <div class="balances">
+                    <button type="button"  id="dropdownBtn" class="btn btn-primary dropdown-toggle" style="border-radius: 23px;
+                    background-color: #ffffff;
+                    border: 4px solid #a6bbcc; font-weight: 700;
+font-family: 'Roboto'; color: black;
+text-align: center;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                     <span id="selected-balance"></span>
+                      </button>
+                      <div class="dropdown-menu" style="border-radius: 23px; font-size: 14px; text-align: left; min-width: 250px;">
+                        <a class="dropdown-item" onclick="depositBalanceIsMain()" style="position: relative" href="#"><span>Реальный</span><span id="depositBalance" style="position: absolute; right: 25px;">500 F</span></a>
+                        <a class="dropdown-item" onclick="bonusBalanceIsMain()" style="position: relative" href="#"><span>Бонус</span><span id="bonusBalance" style="position: absolute; right: 25px;">500 F</span></a>
+                        
+                        
+                </div>
+            </div>
+        </div>
+    
+        <div class="col-3 offset-4" style="display: flex; gap: 10px ;">
+            <div class="chat">
+                <button class="chat-button" style="border-radius: 12px;
+            background-color: #b3d6f2;  height: 44px;      
+            border: 2px solid #65a7fb; width: 44px;">
+                <img src="/static/img/icons8-chat-room-48 (1).png" style="width: 100%;" alt="Profile Icon">
+ 
+              </button>
+            </div>
+            <div class="profile">
+                <button class="profile-button" style="border-radius: 12px;
+            background-color: #b3d6f2; height: 44px;    
+            border: 2px solid #65a7fb; width: 44px;">
+                <img src="/static/img/icons8-customer-50.png" style="width: 100%; " alt="Profile Icon">
+ 
+              </button>
+            </div>
+            
+              
+        </div>
+       
+
+    </div>
+    <div class="row" style="margin-top: 15px;">
+        <div class="col-12" id="col-for-coefs" style="display: flex;; gap: 5px; overflow-x: auto; -webkit-overflow-scrolling: touch;">
+            
+            <div class="coeff_win" style="border-radius: 47px;
+            background-color: #ffffff;  display: flex; justify-content: center; align-items: center; height: 5vh;
+            border: 3px solid #65a7fb; color: #65a7fb;text-align: center; width: 18%; font-weight: 500; flex: 0 0 20%;">
+                <span>1.28</span>   
+            </div>
+            <div class="coeff_lose" style="border-radius: 47px;
+            background-color: #ffffff;  display: flex; justify-content: center; align-items: center;
+            border: 3px solid #ff3400;height: 5vh; color: #ff3400;text-align: center; width: 20%; font-weight: 500; flex: 0 0 20%;">
+                <span>1.00</span>
+            </div>
+            <div class="coeff_big_win" style="border-radius: 47px;
+            background-color: #62a5fb;;  display: flex; justify-content: center; align-items: center; 
+            border: 3px solid #65a7fb; height: 5vh; color: white;text-align: center; width: 20%; font-weight: 500; flex: 0 0 20%;">
+                <span>1.28</span>
+            </div>
+
+            
+       
+        </div>
+        
+    </div>
+    <div class="row">
+        <div class="col-12" style="margin-top: 5px;">
+            <div class="sky" style="width: 100%; height: 52vh; /* Высота контейнера */
+            overflow: hidden; /* Скрыть изображения, выходящие за пределы контейнера */ 
+            position: relative; background-image: url(/static/img/main\ screen\ \(1\).png); background-size: cover; /* Масштабирование изображения для заполнения всей области фона */
+  background-position: center; background-repeat: no-repeat; border-radius: 30px;" >
+                    <h2 id="currentMultiplier" style="font-size: 'Roboto'; font-weight: 900; position: absolute; top: 0; right: 5%; color: white;">2x</h2>
+                    <div class="container-for-btns" style="position: absolute; top: 4%; left: 3% ; display: flex; flex-direction: column; gap: 5px; width: 35%; overflow-y: auto; max-height: 100%;">
+                        <button class="btn btn-primary" id="closeBtn" onclick="toggleMenu()" style="background-color: rgba(255, 255, 255, 0.1); border: none; font-family: 'Roboto'; border-radius: 47px; color: white; "><i class="fas fa-arrow-left" id="closeBtnText"></i> Закрыть</button>
+                        <div class="faketable" style="
+                        flex-direction: column;
+                        gap: 5px ;
+                 z-index: 10;
+                    ;"> 
+                           
+                              
+                        </div>
+                        
+                    </div>
+                    <div id="container-for-progress" style="display: flex; flex-direction: column; align-items:center ; justify-content:center; position: absolute; left: 46%; top: 4%; width: 50%; border-radius: 23px;
+                    background-image: linear-gradient(0deg, #b3d6f2 0%, #498fea 100%);
+                    border: 5px solid #b3d6f2; display: none;">
+                      <h3 style="color: #ffffff;
+                      font-weight: 900;
+                      font-family: 'Roboto'; font-size: 16px;
+                      text-align: center; margin-top: 15px;">Ожидание запуска</h3>
+                      <div class="progress" style="width: 90%; border-radius: 23px; margin-bottom: 15px; background-color: #367cd8;">
+                        <div class="progress-bar bg-white" id="progressBarOfGame" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    </div>
+                     
+                    <img src="/static/img/Слой 3 копия 2 (1).png" class="big-cloud" style="width: 30%; position: absolute; top: 70%; left: 20%; " alt="">
+                    <img src="/static/img/Слой 3 копия 2 (1).png" alt="" class="small-cloud" style="width: 17%; position: absolute; top: 21%; left: 43%;">
+                    <img src="/static/img/Слой 3 копия 2 (1).png" alt="" class="small-cloud" style="width: 17%; position: absolute; top: 55%; left: 80%;">
+                    <img src="/static/img/froget animation.gif" style="position: absolute;   width: 40%;  z-index: 10;" alt="" id="frog">
+                </div>
+            </div>
+    </div>
+       <div class="row" >
+        <div class="col-12">
+            <div class="bet-back" style="background-color: #b3d6f2;
+            border: 4px solid #cde2f2; margin-top: 10px;  max-height: 30vh; border-radius: 30px;">
+                <div class="buttons-there" style="display: flex; justify-content: center; align-items: start; height: 100%; padding: 10px ; gap: 8px;">
+                    <div class="buttons-there-left" style="display: flex; justify-content: space-between; gap: 8px; align-items: center;  flex: 4; flex-wrap: wrap;
+                    ">
+                        
+                        <button class="btn btn-primary  auto-withdraw" style="background-color: #ffffff;
+                        border: 2px solid #cde2f2; border-radius: 12PX; flex: 2; max-height: 45px;" >
+                        <div class="input-group " style="display: flex; align-items: center;">
+                            <div class="input-group-prepend" style="background-color: white; color: white; display: flex; align-items:start; ">
+                              <span class="input-group-text" id="basic-addon1" style="background-color: white; border: none; font-size: 24px; line-height: 0.5; padding-bottom: 0.4em; color: #8d9dac;padding-left: 0;">&times;</span>
+                            </div>
+                            <input type="text" class="form-control" placeholder="Коефициент" id="coeff" value="2" aria-label="Username" style="border: none; outline: none; padding-left: 4px;" aria-describedby="basic-addon1">
+                          </div>
+                            
+                        </button>
+                        <div class="btn btn-primary" style="background-color: #ffffff;
+                        border: 2px solid #cde2f2; border-radius: 12PX; flex: 3; max-height: 45px; min-width: 80px;">
+                        
+                            <div class="input-group " style="display: flex; align-items: center; justify-content: start;">
+                                <div class="input-group-prepend" style="background-color: white; color: white; display: flex; align-items:start; justify-content: start; ; ">
+                                  <span class="input-group-text" id="basic-addon1" style="background-color: white; border: none; font-size: 18px; line-height: 0.5; padding-bottom: 0.4em; color: #00b135; padding-left: 0;;">F</span>
+                                    
+                                </div>
+                                <input type="text" id="betAmount" class="form-control" placeholder="Ставка" id="bet-input" value="2" aria-label="Username" style="border: none; outline: none; padding-right: 0px; padding-left: 4px; padding-bottom: 5px;padding-top: 5px;" aria-describedby="basic-addon1">
+                                
+                                <div class="input-group-append" style="padding-right: 0; padding-left: 0;"><button class="btn btn-primary" onclick="maxPossibleBet()" style="display: flex; align-items: center; justify-content: center; padding-left: 5px; padding-right: 5px; border-radius: 6PX;  font-size: 8px; aspect-ratio: 93/70; background-color: #cde2f2; color: #8ba6ba; border: none; font-family: 'Roboto';"><span>МАКС</span></button>
+                         
+                                </div>
+                                
+                            </div>
+                        </div>
+                        <div class="row-of-multipliers" style="display: flex; justify-content: space-between; gap: 10px; width: 100%; flex-wrap: wrap;" >
+                            <button class="btn btn-primary" onclick="document.querySelector('#betAmount').value = (document.querySelector('#betAmount').value * 2).toFixed(2)" style="background-color:#99c5ff; padding: 0 0; 
+                            border: 1px solid #6cabfb; border-radius: 18PX; flex: 1;flex-basis: 70px; ">&times2</button>
+                            <button class="btn btn-primary"onclick="document.querySelector('#betAmount').value = (document.querySelector('#betAmount').value * 1.5).toFixed(2)"  style="background-color:#99c5ff;padding: 0 0 ; 
+                            border: 1px solid #6cabfb; border-radius: 18PX; flex: 1;flex-basis: 70px;">&times1.5</button>
+                            <button class="btn btn-primary" onclick="document.querySelector('#betAmount').value = (document.querySelector('#betAmount').value / 2).toFixed(2)"  style="background-color:#99c5ff;padding: 0 0 ; 
+                            border: 1px solid #6cabfb; border-radius: 18PX; flex: 1;flex-basis: 70px;">&divide2</button>
+                            <div style="padding: 0 0; display: flex; margin-left: 10%;"><input class="form-check-input"  type="checkbox" value="" style="border-radius: 40px ;" id="auto-withdrawal">
+                                <label class="form-check-label" for="defaultCheck1" style="color: #8b9dac; font-family: 'Roboto' ;">
+                                  Авто-вывод
+                                </label></div>
+                        </div>
+                        
+                    </div>
+                    <div class="buttons-there-right" style="display: flex; justify-content: center; align-items: center;  width: 40%;">
+                        <button onclick="makeBet()" id="make_bet_button" class="btn btn-danger" style="white-space: nowrap; border-radius: 15px; border: 2px solid #cde2f2;; color: #f5f5f5; background: linear-gradient(180deg, #cf090f 0%, #fd4b27 100%, #fd4b27 100%); width: 100%; min-height: 80px; font-family: 'Roboto'; font-weight: 900; ">
+                            <span style="font-weight: 700; font-size: 26px;">СТАВКА</span>
+                        </button>
+                        
+                    </div>
+                    
+                </div>
+               
+                
+            </div>
+        </div>
+       </div>
+        </div>
+       
+    
+    </div>
+    <div id="notificationContainer" style="  position: fixed;
+    bottom: 20px;
+    right: 20px;">
+
+    </div>
+    <input type="text" style="display: none; " value="{{ip_adress}}" id="ipAdress">
+    <input type="text" style="display: none; " value="{{is_game_in_progress}}" id="gameInProgress">
+    <script>
+
+
+
+    
+    
+
+            
+
+    
+
+   
+
+function slidingLeft(){
+        var styleSheet = document.styleSheets[0];
+        document.querySelectorAll('.big-cloud, .small-cloud').forEach(function(element) {
+          // Получаем текущее значение left и устанавливаем его как начальное значение анимации
+          
+ 
+          element.style.animation = `slideLeft 6s linear infinite`;
+          
+        });}
+        var sky = document.querySelector('.sky');
+function slidingLeftBottom(){
+    var styleSheet = document.styleSheets[0];
+        document.querySelectorAll('.big-cloud, .small-cloud').forEach(function(element) {
+          // Получаем текущее значение left и устанавливаем его как начальное значение анимации
+          
+ 
+          element.style.animation = `slideLeftBottom 2s linear infinite`;
+       
+        });
+}
+slidingLeft()
+
+// Получаем ссылки на облака
+var bigCloud = document.querySelector('.big-cloud');
+var smallClouds = document.querySelectorAll('.small-cloud');
+
+// Функция для перемещения облаков
+function moveClouds() {
+    
+    // Получаем текущую позицию облаков
+    var bigCloudLeft = parseInt(bigCloud.offsetLeft);
+    var smallCloudsLeft = Array.from(smallClouds).map(function(cloud) {
+        return parseInt(cloud.style.left);
+    });
+
+  
+    if (bigCloudLeft < -bigCloud.offsetWidth) {
+        bigCloud.style.left = '110%';
+      
+    }
+
+    smallClouds.forEach(function(smallCloud){
+        var smallCloudLeft = smallCloud.offsetLeft;
+        if (smallCloudLeft < -smallCloud.offsetWidth){
+            let min = 10;
+let max = 40;
+let randomNumberInRange = Math.random() * (max - min + 1) + min;
+
+            smallCloud.style.left = `1${randomNumberInRange}%`;
+        } 
+
+    })
+}
+
+// Вызываем функцию для перемещения облаков каждые 10 миллисекунд
+setInterval(moveClouds, 10);
+      </script>
+          <script src="https://kit.fontawesome.com/fb4ceca77a.js" crossorigin="anonymous"></script>
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+    <script>
+        var notificationContainer = document.querySelector('#notificationContainer');
+        var faketable = document.querySelector('.faketable');
+        var isAuthorized = false;
+        var frog = document.querySelector('#frog');
+        var fakeBets;
+        var used_childs = [];
+       
+ 
+var socket = io.connect(`${window.location.protocol}//${window.location.hostname}:${window.location.port}`);
+        var balance = parseFloat(document.querySelector('#depositBalance'))
+        var balanceElement = document.querySelector('#depositBalance')
+        var gameInProgressElement = document.querySelector('#gameInProgress');
+        var make_bet_button = document.querySelector('#make_bet_button');
+        var currentMultiplier = 0;
+        var currentMultiplierElement = document.querySelector('#currentMultiplier')
+        var currentBet;
+        var forGame;
+		var user_id;
+        var currentGame;
+		var upcomingGame;
+        var selectedBalance = document.querySelector('#selected-balance');
+        var selectedBalanceObject = {
+            baltype: 'deposit'
+            
+        }
+        var bonusBalanceElement = document.querySelector('#bonusBalance');
+        var betAmount = document.querySelector('#betAmount')
+        var progressBarOfGame = document.querySelector('#progressBarOfGame')
+        var containerForProgress = document.querySelector('#container-for-progress')
+        var container_for_btns = document.querySelector('.container-for-btns')
+        var colForCoefs = document.querySelector('#col-for-coefs')
+        var autoWithdrawal = document.querySelector('#auto-withdrawal');
+        var autoWithdrawalCoeff;
+        var autoWithdrawalCoeffInput = document.querySelector('#coeff')
+    
+        socket.on("you_got_new_winning", function(data){
+    
+            var notification = document.createElement('div');
+            notification.classList.add('alert', 'notification-success', 'notification');
+            notification.setAttribute('role', 'alert'); 
+            notification.textContent = `Вы выиграли ${data.amount.toFixed(2)} ₽`;
+			sky.appendChild(notification);
+          
+            if (data.baltype == 'deposit'){
+			balanceElement.innerHTML = `${(data.user.deposit_balance).toFixed(2)} F`;
+            if (selectedBalanceObject.baltype == 'deposit'){
+            selectedBalance.innerHTML = balanceElement.innerHTML;}
+
+            }
+            else{
+                bonusBalanceElement.innerHTML = `${(data.user.bonus_balance).toFixed(2)} F`
+                if (selectedBalanceObject.baltype == 'bonus'){
+                    selectedBalance.innerHTML = bonusBalanceElement.innerHTML;
+                }
+            }
+            make_bet_button.innerHTML = '<span style=" font-weight: 700; font-size: 26px;">СТАВКА</span>';
+
+            make_bet_button.onclick =  makeBet;
+            currentBet = null;
+		});
+        if (gameInProgressElement.getAttribute('value') == "True"){
+			gameInProgress = true;
+
+		}
+		else {
+			gameInProgress = false;
+		};
+        
+        socket.on('connect', function(data) {
+	var WebApp = window.Telegram.WebApp;       
+        var ipAdress =  `${WebApp.initDataUnsafe.user.id}`;
+	  
+            var messageData = {
+                username: ipAdress
+            };
+
+            socket.emit('authorize', messageData);
+			socket.emit('get_current_game', messageData)
+            socket.emit('get_previous_xes');
+        });
+        socket.on('previous_xes', function (data){
+            var previous_xes = data.data
+            previous_xes.forEach(element => {
+                if (parseFloat(element) <1.05){
+
+colForCoefs.innerHTML =` <div class="coeff_lose" style="border-radius: 47px;
+background-color: #ffffff;  display: flex; justify-content: center; align-items: center;
+border: 3px solid #ff3400;height: 5vh; color: #ff3400;text-align: center; width: 20%; font-weight: 500; flex: 0 0 20%;">
+<span>${element}</span>
+</div>${colForCoefs.innerHTML}`
+
+}
+else if (parseFloat(element) >= 2){
+
+colForCoefs.innerHTML = `<div class="coeff_big_win" style="border-radius: 47px;
+background-color: #62a5fb;;  display: flex; justify-content: center; align-items: center; 
+border: 3px solid #65a7fb; height: 5vh; color: white;text-align: center; width: 20%; font-weight: 500; flex: 0 0 20%;">
+<span>${parseFloat(element)}</span>
+</div>${colForCoefs.innerHTML}`
+}
+else{
+
+colForCoefs.innerHTML =   `<div class="coeff_win" style="border-radius: 47px;
+background-color: #ffffff;  display: flex; justify-content: center; align-items: center; height: 5vh;
+border: 3px solid #65a7fb; color: #65a7fb;text-align: center; width: 18%; font-weight: 500; flex: 0 0 20%;">
+<span>${element}</span>   
+</div>${colForCoefs.innerHTML}`
+}
+            });
+        })
+
+        socket.on('error', function(data){
+           
+			var notification = document.createElement('div');
+            notification.classList.add('alert', 'notification-error', 'notification');
+            notification.setAttribute('role', 'alert'); 
+            notification.textContent = `${data.message}`;
+			sky.appendChild(notification);
+
+		});
+        
+        socket.on('not_enough_funds_on_the_balance', function(data){
+           currentBet = null;
+           var notification = document.createElement('div');
+            notification.classList.add('alert', 'notification-warning', 'notification');
+            notification.setAttribute('role', 'alert'); 
+            notification.textContent = `${data.message}`;
+			sky.appendChild(notification);
+
+
+       });
+        socket.on('successful_authorizing', function(data){
+            isAuthorized = true;
+            user_id = data.user.id;
+            balanceElement.innerHTML =  (data.user.deposit_balance).toFixed(2) + ' F';
+            bonusBalanceElement.innerHTML = (data.user.bonus_balance).toFixed(2) + ' F';
+            if (selectedBalanceObject.baltype == 'deposit'){
+            selectedBalance.innerHTML = (data.user.deposit_balance).toFixed(2) + ' F';	
+            
+            }
+            else{
+                selectedBalance.innerHTML = (data.user.bonus_balance).toFixed(2) + ' F';
+            }
+            
+			if (data.payments){
+				data_for_args = {confirmation_token : data.payments.confirmation_token}
+				generate_widget_for_payment(data_for_args)
+			}
+        });
+
+        function pickUpWInning(){
+            autoWithdrawalCoeff = null;
+			if (!isAuthorized){
+                var notification = document.createElement('div');
+            notification.classList.add('alert', 'notification-error', 'notification');
+            notification.setAttribute('role', 'alert'); 
+            notification.textContent = `Вы не зарегистрированы`;
+			 return sky.appendChild(notification);
+
+            }
+			if (!currentMultiplier){
+                var notification = document.createElement('div');
+            notification.classList.add('alert', 'notification-blue', 'notification');
+            notification.setAttribute('role', 'alert'); 
+            notification.textContent = `Дождитесь начала игры`;
+			return sky.appendChild(notification);
+
+			}
+            if (currentBet){
+
+            
+			socket.emit("pickupwinning", {bet : currentBet.id})
+            currentBet = null;
+            }}
+        socket.on("crash", function(data){
+	autoWithdrawalCoeff = null;
+            used_childs = [];
+            faketable.innerHTML = '';
+            frog.classList.remove('fly-from-button')
+            frog.classList.add('fly-top-right');
+
+            slidingLeft()
+            if (parseFloat(currentMultiplier) <1.05){
+
+                colForCoefs.innerHTML =` <div class="coeff_lose" style="border-radius: 47px;
+            background-color: #ffffff;  display: flex; justify-content: center; align-items: center;
+            border: 3px solid #ff3400;height: 5vh; color: #ff3400;text-align: center; width: 20%; font-weight: 500; flex: 0 0 20%;">
+                <span>${currentMultiplier}</span>
+            </div>${colForCoefs.innerHTML}`
+            
+            }
+            else if (parseFloat(currentMultiplier) >= 2){
+              
+                colForCoefs.innerHTML = `<div class="coeff_big_win" style="border-radius: 47px;
+            background-color: #62a5fb;;  display: flex; justify-content: center; align-items: center; 
+            border: 3px solid #65a7fb; height: 5vh; color: white;text-align: center; width: 20%; font-weight: 500; flex: 0 0 20%;">
+                <span>${parseFloat(currentMultiplier)}</span>
+            </div>${colForCoefs.innerHTML}`
+            }
+            else{
+          
+                colForCoefs.innerHTML =   `<div class="coeff_win" style="border-radius: 47px;
+            background-color: #ffffff;  display: flex; justify-content: center; align-items: center; height: 5vh;
+            border: 3px solid #65a7fb; color: #65a7fb;text-align: center; width: 18%; font-weight: 500; flex: 0 0 20%;">
+                <span>${currentMultiplier}</span>   
+            </div>${colForCoefs.innerHTML}`
+            }
+            try{
+            if (currentBet.round_id == currentGame){
+                if (data.user.id == user_id){
+                	var notification = document.createElement('div');
+            notification.classList.add('alert', 'notification-error', 'notification');
+            notification.setAttribute('role', 'alert'); 
+            notification.textContent = `Вы проиграли ${data.amount} F`
+			sky.appendChild(notification);
+
+            
+				balanceElement.innerHTML =( data.user.deposit_balance).toFixed(2) + ' F'
+                bonusBalanceElement.innerHTML = data.user.bonus_balance.toFixed(2) +' F'
+            }
+                if (selectedBalanceObject.baltype == 'deposit'){
+                selectedBalance.innerHTML = balanceElement.innerHTML;}
+                else{
+                    selectedBalance.innerHTML = bonusBalanceElement.innerHTML;
+                }
+                currentBet = null;
+			}}catch (error){}
+                
+		})
+        function topUpBalanceClicked(){
+			amount_in_rub = parseFloat(prompt('Укажите сумму на которую вы хотите пополнить баланс'))
+
+			socket.emit("topUpBalance", {user_id : user_id, amount : amount_in_rub})
+
+		}
+        function generate_widget_for_payment(data){
+			var confirmation_token = data.confirmation_token
+
+			var parentElement = document.getElementById("parent-container");
+			// Удаляем переменную checkout, если она существует
+
+
+			var scriptElement = document.createElement("script");
+			var scriptElement2 = document.createElement("script");
+
+		
+
+// Создаем текст скрипта
+
+// Устанавливаем атрибут src для этого элемента
+			scriptElement.src = "https://yookassa.ru/checkout-widget/v1/checkout-widget.js";
+
+// Устанавливаем id для этого элемента
+			
+	
+			//container_for_payment.appendChild(scriptElement);
+			var scriptText = `
+			if (window.checkout) {
+				delete window.checkout;;
+}
+// Инициализация виджета. Все параметры обязательные.
+const checkout = new window.YooMoneyCheckoutWidget({
+    confirmation_token: '${confirmation_token}', //Токен, который перед проведением оплаты нужно получить от ЮKassa
+    return_url: 'https://example.com/', //Ссылка на страницу завершения оплаты, это может быть любая ваша страница
+    customization: {
+        //Настройка способа отображения
+        modal: true
+    },
+	error_callback: function(error) {
+        console.log(error);
+    }
+});
+
+// Отображение платежной формы в контейнере
+checkout.render('payment-form');
+`;
+
+// Устанавливаем содержимое скрипта
+			scriptElement2.innerHTML = scriptText;
+			parentElement.appendChild(scriptElement)
+			parentElement.appendChild(scriptElement2)
+
+			
+
+
+		}
+
+		socket.on("generate_widget_for_payment", function(data) {
+    generate_widget_for_payment(data);
+});
+
+function maxPossibleBet(){
+
+    betAmount.value = parseFloat(balanceElement.innerHTML);
+}
+
+function makeBet(){
+      
+            if (!isAuthorized){
+                var notification = document.createElement('div');
+            notification.classList.add('alert', 'notification-error', 'notification');
+            notification.setAttribute('role', 'alert'); 
+            notification.textContent = "Вы не зареганы!"
+			return sky.appendChild(notification);
+
+              
+            }
+	
+			if (gameInProgress){
+                var notification = document.createElement('div');
+            notification.classList.add('alert', 'notification-warning', 'notification');
+            notification.setAttribute('role', 'alert'); 
+            notification.textContent = "Вы не можете ставить ставки во время игры!"
+			return sky.appendChild(notification);
+
+				
+			}
+			if (!betAmount.value){
+                var notification = document.createElement('div');
+            notification.classList.add('alert', 'notification-blue', 'notification');
+            notification.setAttribute('role', 'alert'); 
+            notification.textContent = "Введите сумму ставки"
+			return sky.appendChild(notification);
+
+				
+			}
+			if (!gameInProgress && isAuthorized && forGame){
+				if (currentBet){
+                    var notification = document.createElement('div');
+            notification.classList.add('alert', 'notification-error', 'notification');
+            notification.setAttribute('role', 'alert'); 
+            notification.textContent ="Вы уже поставили ставку в этой игре!"
+			return sky.appendChild(notification);
+
+				
+					
+				}
+             
+				
+                if (autoWithdrawal.checked){
+                    if (autoWithdrawalCoeffInput.value){
+                        if ((parseFloat(autoWithdrawalCoeffInput.value) < 1.1)){
+                           
+                            var notification = document.createElement('div');
+            notification.classList.add('alert', 'notification-warning', 'notification');
+            notification.setAttribute('role', 'alert'); 
+            notification.textContent ="Минимальный коеффициент для автовывода - 1.1"
+			return sky.appendChild(notification);
+
+                        }
+                        autoWithdrawalCoeff = parseFloat( autoWithdrawalCoeffInput.value) 
+                
+
+                    }
+                    else{   
+                        var notification = document.createElement('div');
+            notification.classList.add('alert', 'notification-warning', 'notification');
+            notification.setAttribute('role', 'alert'); 
+            notification.textContent ="Введите коэффициент для вывода!"
+			return sky.appendChild(notification);
+                    }
+                }
+				socket.emit("new_bet", {"user_id":user_id, game_id:forGame,  bet_in_usd:parseFloat(betAmount.value), baltype:selectedBalanceObject.baltype})
+			}
+        
+		};
+        socket.on("successful_bet",function(data){
+			currentBet = data;
+    
+            if (data.baltype == 'deposit'){
+			balanceElement.innerHTML = `${(parseFloat(balanceElement.innerHTML) - data.price).toFixed(2)} F` ;
+            if (selectedBalanceObject.baltype == 'deposit'){
+            selectedBalance.innerHTML = balanceElement.innerHTML;}}
+            else {
+                
+                bonusBalanceElement.innerHTML = `${(parseFloat(bonusBalanceElement.innerHTML)-data.price).toFixed(2)} F`;
+                if (selectedBalanceObject.baltype == 'bonus'){
+                    
+
+                    selectedBalance.innerHTML = bonusBalanceElement.innerHTML;
+      
+                }
+            }
+       
+            var notification = document.createElement('div');
+            notification.classList.add('alert', 'notification-blue', 'notification');
+            notification.setAttribute('role', 'alert'); 
+            notification.textContent ="Вы успешно поставили ставку"
+			sky.appendChild(notification);
+		});
+        socket.on("current_game", function(newData) {
+			/* for (k=0; k<=300; k++){
+				сhart.data.labels.push(numbers[k])
+				chart.data.datasets[0].data.push(values[k])
+			} */
+           
+	    if (frog.classList != ['fly-from-button']){
+		frog.classList.add('fly-from-button');
+	    }
+            gameInProgress = true;
+            containerForProgress.style.display = 'none'
+            if (!currentBet){
+                make_bet_button.innerHTML =  '<span style="font-weight: 700; font-size: 26px;">...</span>';
+           
+            }
+            
+			if (newData.fake_bets){
+			
+				for (const key in newData.fake_bets){
+            
+					var userName_and_avatar = newData.fake_bets[key]
+                    for (const userName in userName_and_avatar){
+						faketable.innerHTML += `<button class="btn btn-primary fakeusers" style=" align-items: center; background-color: rgba(255, 255, 255, 0.1); border: none; font-family: 'Roboto'; border-radius: 47px; color: white; text-align: center;">
+                            <img src="${userName_and_avatar[userName]}" style="width: 25px; margin-right: 10px; border-radius:30px" alt="">
+                            <div style="text-align: left;overflow: auto;  -webkit-overflow-scrolling: touch;">
+                              <span style="font-weight: 300; font-size: 8px; ">${userName}</span><br>
+                              <span style="font-weight: 400; font-size: 12px; ">${key} F</span>
+                            </div>
+                          </button>`
+                    }}
+				
+			}
+            currentMultiplierElement.innerHTML = newData.current_multiplier.toFixed(2)+'x';
+			currentMultiplier = newData.current_multiplier.toFixed(2)+'x';
+            
+            if (currentBet && autoWithdrawalCoeff){
+            
+                
+             
+                
+                if (parseFloat(currentMultiplier) > parseFloat(autoWithdrawalCoeff).toFixed(2))
+           
+                    pickUpWInning()
+            }
+           
+            var randomNumber = Math.floor(Math.random() * 100);
+try{
+            if (randomNumber < 40){
+           var childs =faketable.querySelectorAll('*');
+            
+           var randomIndex = Math.floor(Math.random() * childs.length);
+           var child = childs[randomIndex];
+           if (!(child in used_childs)) {
+           var span = child.querySelector('.btn.btn-primary.coeff');
+span.innerHTML= currentMultiplier;
+           used_childs.push(child);
+           }}}catch(error){}
+        });
+        socket.on("time_remaining", function (data){
+            if (frog.classList != ['fly-top-right']){
+		    frog.classList.add('fly-top-right');
+	    }
+            make_bet_button.innerHTML =  '<span style=" font-weight: 700; font-size: 26px;">СТАВКА</span>';
+            
+            make_bet_button.onclick = makeBet;
+			gameInProgress = false;
+			var secondsToUpcomingGame = data.seconds;
+			forGame = data.for_game;
+
+            progressBarOfGame.style.width = `${data.seconds_remained*10}%`;
+            containerForProgress.style.display = 'flex'
+        
+            currentMultiplierElement.innerHTML = '';
+            if (data.fake_bets){
+                data = data.fake_bets
+
+data.forEach(bet => {
+
+    for (const username in bet){
+        
+        var avatarUrl = bet[username];
+        var randomNumber = Math.floor(Math.random() * 1000) + 1;
+   
+        faketable.innerHTML += `<button class="btn btn-primary fakeusers" style="position:relative;align-items: center; background-color: rgba(255, 255, 255, 0.1); border: none; font-family: 'Roboto'; border-radius: 47px; color: white; text-align: center;">
+                        <img src="${avatarUrl}" style="width: 25px; margin-right: 10px; border-radius:30px" alt="">
+                        <div style="text-align: left;overflow: auto;  -webkit-overflow-scrolling: touch;">
+                          <span style="font-weight: 300; font-size: 8px; ">${username}</span><br>
+                          <span style="font-weight: 400; font-size: 12px; ">${randomNumber} F</span>
+                        </div>
+                        <div  class="btn btn-primary coeff" style="display: flex; align-items:center; justify-content:center; position: absolute; text-align: center; top: -2%; right:-5%; background-color: #e5dee5; border-radius:16px; padding: 0; font-size:12px;">
+                                 
+                                </div>
+                      </button>`
+    }
+});
+            }
+		});
+        socket.on("startgame", function(data){
+            frog.classList.remove('fly-top-right');
+
+            frog.classList.add('fly-from-button')
+        
+            slidingLeftBottom()
+            if (currentBet){
+              
+            make_bet_button.onclick = pickUpWInning
+            make_bet_button.innerHTML =  '<span style="b font-weight: 700;  font-size: 26px;">ЗАБРАТЬ</span>';
+            
+          
+        }
+            else{
+                make_bet_button.innerHTML =  '<span style=" font-weight: 700; font-size: 26px;">...</span>';
+           
+            }
+
+            containerForProgress.style.display = 'none'
+    currentMultiplierElement.innerHTML = '';
+    currentMultiplier = 0;
+    currentGame = data.game_id;
+    gameInProgress = true;
+    if (currentBet){
+
+        if (currentBet.round_id !=currentGame){
+        currentBet = null
+    }
+    }
+    
+ 
+   
+
+});
+
+socket.on('fake_bets', function(newData){
+    
+
+
+
+})
+
+function toggleMenu(){
+        var closeBtn = document.querySelector('#closeBtn');
+        var closeBtnText = document.querySelector('#closeBtnText');
+        faketable.classList.toggle('collapsed')
+        faketable.classList.toggle('faketable')
+        
+        if  (closeBtnText.classList == 'fas fa-arrow-right'){
+      
+        
+            closeBtn.innerHTML = '<i class="fas fa-arrow-left" id="closeBtnText"></i> Закрыть';
+            
+        }
+        else{
+            closeBtn.innerHTML = '<i class="fas fa-arrow-right" id="closeBtnText"></i>';
+        }
+       
+    }
+    var dropdownBtn = document.querySelector('#dropdownBtn');
+function depositBalanceIsMain(){
+    selectedBalanceObject.baltype ='deposit'
+    selectedBalance.innerHTML = balanceElement.innerHTML;
+    
+}
+function bonusBalanceIsMain(){
+    selectedBalanceObject.baltype = 'bonus'
+    selectedBalance.innerHTML = bonusBalanceElement.innerHTML;
+}
+function hideNotifications(){
+    var notifications = document.querySelectorAll('.notification');
+
+// Добавляем слушатель событий для клика к каждому элементу
+notifications.forEach(function(notification) {
+    notification.addEventListener('click', function() {
+        this.style.display = 'none'; // Скрыть элемент при клике
+    });
+});
+}
+setInterval(hideNotifications, 1000);
+
+function terminateNotifications(){
+    // Находим все элементы с классом notification
+var notifications = document.querySelectorAll('.notification');
+
+// Проходимся по каждому элементу
+notifications.forEach(function(notification) {
+    notification.classList.add('fade-out');
+    notification.addEventListener('transitionend', function(){
+        notification.remove();
+
+    }) // Через 2 секунды (2000 миллисекунд)
+});
+
+}
+setInterval(terminateNotifications, 10)
+    </script>
+</body>
+</html>
