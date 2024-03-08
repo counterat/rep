@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/static/js/chart.min.js"></script>
+	
+    <title>Smooth Chart</title>
+	<style>
+		.scrollable-table {
+    height: 200px; /* Высота таблицы */
+    overflow-y: auto; /* Включение вертикальной прокрутки */
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #f2f2f2;
+}
+
+	</style>
+</head>
+<body>
+	<div id="parent-container"></div>
+	<div id="payment-form"></div>
+	<script src="https://yookassa.ru/checkout-widget/v1/checkout-widget.js"></script>
+
+	
+
+	<p>Данные банковской карты для оплаты в <b>тестовом магазине</b>:</p>
+	<ul>
+	 <li>номер — <b>5555 5555 5555 4477</b></li>
+	 <li>срок действия — <b>01/30</b> (или другая дата, больше текущей)</li>
+	 <li>CVC — <b>123</b> (или три любые цифры)</li>
+	 <li>код для прохождения 3-D Secure — <b>123</b> (или три любые цифры)</li>
+	</ul>
+	<p><a href=https://yookassa.ru/developers/payment-acceptance/testing-and-going-live/testing#test-bank-card>Другие тестовые банковские карты</a></p>
+  
+
+	<h1 id="upcomingGame"></h1>
+    <input style="display: none;" type="text" name="" value="{{ip_adress}}" id="ipAdress">
+   <!--  <canvas id="smoothChart" width="400" height="400"></canvas> -->
+	
+    <div id="currentMultiplier" style="font-size: 50px; position: fixed; top: 50%; left: 50%;"></div>
+	<div class="scrollable-table">
+		<table>
+			<thead>
+				<tr>
+					<th>Аватар</th>
+					<th>Имя игрока</th>
+					<th>Выигрыш в USD</th>
+				</tr>
+			</thead>
+			<tbody id="tbody">
+				
+				
+				<!-- Добавьте другие строки по аналогии -->
+			</tbody>
+		</table>
+	</div>
+	
+    <label for="betAmount" style="display: none;" id="betAmountLabel">Введите сумму ставки:</label>
+    <input type="number" id="betAmount" placeholder="Введите сумму" style="display: none;">
+
+    
+    <button id="makeBet" onclick="makeBet()">Сделать ставку</button>
+	<button id="pickUpWInning" onclick="pickUpWInning()">Забрать выигрыш</button>
+	<div id="gameInProgress" value="{{is_game_in_progress}}"></div>
+	<button id="balanceButton">Показать балансы</button>
+	
+
+<div id="balanceMenu" style="display: none;">
+    <ul>
+        <li>Реферальный баланс: <span id="referralBalance">100</span></li>
+        <li>Бонусный баланс: <span id="bonusBalance">50</span></li>
+        <li>Депозит: <span id="balance">200</span></li>
+		<li><button id="topUpBalance" onclick="topUpBalanceClicked()">Пополнить баланс</button></li>
+    </ul>
+</div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+    <script>
+    ctx    = document.querySelector('#smoothChart').getContext('2d')
+    
+	let numbers = [];
+
+for (let i = 0; i <= 300; i++) {
+    numbers.push(i);
+}
+let values = [];
+
+for (let x = 0; x <= 300; x++) {
+    let y = (2/25) * Math.pow(x, 2);
+    values.push(y);
+}
+
+console.log(values);
+	let shadowLine = Chart.controllers.line.extend({
+		initialize: function () {
+			Chart.controllers.line.prototype.initialize.apply(this, arguments)
+			
+			var ctx = this.chart.ctx
+			var originalStroke = ctx.stroke
+			ctx.stroke = function () {
+				ctx.save()
+				ctx.shadowColor = 'rgba(0,0,0,0.3)'
+				ctx.shadowOffsetX = 4
+				ctx.shadowOffsetY = 4
+				ctx.shadowBlur = 15
+				originalStroke.apply(this, arguments)
+				ctx.restore()
+			}
+		}
+	})
+	Chart.controllers.shadowLine = shadowLine
+	
+	let chart = new Chart(ctx, {
+		type: 'line',
+		data: {
+			labels: [],
+			datasets: [{
+				label: '',
+				backgroundColor: 'rgba(73, 134, 245, 0.65)',
+				borderColor: '#bbbbbb',
+				pointRadius: 0,
+				borderWidth: 5,
+				data: [],
+			}]
+		},
+		options: {
+			animation: false,
+			title: {
+				display: false
+			},
+			legend: {
+				display: false,
+			},
+			layout: {
+				padding: {
+					left: 7
+				}
+			},
+			scales: {
+				xAxes: [{
+					gridLines: {
+						display: false,
+					},
+					ticks: {
+						min: 1,
+						stepSize: 1,
+						display: false,
+					}
+				}],
+				yAxes: [{
+					gridLines: {
+						display: false,
+					},
+					ticks: {
+						beginAtZero:true,
+						padding: 10,
+						min: 1,
+						max: 2,
+						stepSize: 0.3,
+						fontSize: 15,
+						fontStyle: 600,
+						fontFamily: "'Open Sans', sans-serif",
+						fontColor: '#496b96',
+						callback: function(value, index, values) {
+							if(value != '' && value.toFixed(1) == 1) return 0;
+							if(!(index % parseInt(values.length / 5))) {
+								return 'x' + value.toFixed(1);
+						  	}
+						}
+					}
+				}]
+			}
+		}
+	})
+    Chart.pluginService.register({
+		afterDraw: function(chart) {
+			var ctx2 = chart,
+				max = ctx2.chartArea.left-5,
+				width = ctx2.width,
+				height = ctx2.height - 10;
+			ctx.save(),
+			ctx.globalCompositeOperation = "destination-over";
+			var lr = Math.round((width - 6) / 83.5) + 1,
+				td = Math.round((height - 1) / 82.5) + 1;
+			ctx.lineWidth = .5,
+			ctx.strokeStyle = "#496b96";
+			for (var s = 0; s < lr; s++) {
+				var c = max + 6 + 83 * s;
+				ctx.beginPath(),
+				ctx.setLineDash([4, 3]),
+				0 === s && ctx.setLineDash([]),
+				ctx.moveTo(c, 0),
+				ctx.lineTo(c, height),
+				ctx.stroke(),
+				ctx.closePath()
+			}
+			for (var u = 0; u < td; u++) {
+				var h = height - (88.8 * u + (u + 1 === td ? 1 : 0)),
+					l = width - 6 - .5 - 9;
+				ctx.beginPath(),
+				ctx.setLineDash([4, 3]),
+				0 === u && ctx.setLineDash([]),
+				ctx.moveTo(max + 6, h),
+				ctx.lineTo(l + max, h),
+				ctx.stroke(),
+				ctx.closePath()
+			}
+			ctx.globalCompositeOperation = "source-over",
+			ctx.restore()
+		}
+	});
+    </script>
+    <script>
+		// Получаем кнопку и меню
+var balanceButton = document.getElementById('balanceButton');
+var balanceMenu = document.getElementById('balanceMenu');
+var topUpBalanceButton = document.getElementById('topUpBalance')
+
+// При клике на кнопку, переключаем видимость меню
+balanceButton.addEventListener('click', function() {
+    if (balanceMenu.style.display === 'none') {
+        balanceMenu.style.display = 'block';
+    } else {
+        balanceMenu.style.display = 'none';
+    }
+});
+
+        var isAuthorized = false;
+        var ipAdress = document.querySelector("#ipAdress").getAttribute("value");
+        var betAmount = document.querySelector('#betAmount')
+        var betAmountLabel = document.querySelector('#betAmountLabel')
+        var balance = document.querySelector("#balance")
+
+        var balanceLabel = document.querySelector('#balanceLabel')
+		var tbody = document.querySelector("#tbody");
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+        var currentMultiplierElement = document.querySelector("#currentMultiplier");
+		var currentMultiplier = 0;
+		var upcomingGameElement = document.querySelector('#upcomingGame');
+		var pickUpWInningElement = document.querySelector('#pickUpWInning');
+		var currentGame;
+		var upcomingGame;
+		var forGame;
+		var user_id;
+		var currentBet;
+		var gameInProgressElement = document.querySelector('#gameInProgress');
+		socket.on("you_got_new_winning", function(data){
+			alert(`Вы выиграли ${data.amount} USD`)
+			balance.innerHTML = data.user.deposit_balance;
+		})
+
+		if (gameInProgressElement.getAttribute('value') == "True"){
+			gameInProgress = true;
+
+		}
+		else {
+			gameInProgress = false;
+		}
+        socket.on("successful_registration", function(data){
+
+        });
+		socket.on('error', function(data){
+			alert(data.message)
+
+		})
+        socket.on('connect', function(data) {
+            var messageData = {
+                username: ipAdress
+            };
+
+            socket.emit('authorize', messageData);
+			socket.emit('get_current_game', messageData)
+        });
+        socket.on('successful_authorizing', function(data){
+            isAuthorized = true;
+			user_id = data.user.id;
+	
+            var line = `${( data.user.deposit_balance)}` 
+            balance.style.cssText = 'display:block;'
+            balance.innerHTML =  data.user.deposit_balance
+        betAmountLabel.style.cssText = 'display:block;'
+        betAmount.style.cssText = 'display: block;'
+			if (data.payments){
+				data_for_args = {confirmation_token : data.payments.confirmation_token}
+				generate_widget_for_payment(data_for_args)
+			}
+        });
+		function pickUpWInning(){
+			if (!isAuthorized){
+                return alert("Вы не зареганы!")
+            }
+			if (!currentMultiplier){
+				return alert("Дождитесь начала игры!")
+			}
+
+			socket.emit("pickupwinning", {bet : currentBet.id})
+		}
+	
+		socket.on("crash", function(data){
+			if (currentBet.round_id == currentGame){
+				alert(`Вы проиграли ${data.amount} USD`)
+				balance.innerHTML = data.user.deposit_balance;
+			}
+
+		})
+		function topUpBalanceClicked(){
+			amount_in_rub = parseFloat(prompt('Укажите сумму на которую вы хотите пополнить баланс'))
+			alert(user_id)
+			socket.emit("topUpBalance", {user_id : user_id, amount : amount_in_rub})
+
+		}
+		function generate_widget_for_payment(data){
+			var confirmation_token = data.confirmation_token
+
+			var parentElement = document.getElementById("parent-container");
+			// Удаляем переменную checkout, если она существует
+
+
+			var scriptElement = document.createElement("script");
+			var scriptElement2 = document.createElement("script");
+
+		
+
+// Создаем текст скрипта
+
+// Устанавливаем атрибут src для этого элемента
+			scriptElement.src = "https://yookassa.ru/checkout-widget/v1/checkout-widget.js";
+
+// Устанавливаем id для этого элемента
+			
+	
+			//container_for_payment.appendChild(scriptElement);
+			var scriptText = `
+			if (window.checkout) {
+				delete window.checkout;;
+}
+// Инициализация виджета. Все параметры обязательные.
+const checkout = new window.YooMoneyCheckoutWidget({
+    confirmation_token: '${confirmation_token}', //Токен, который перед проведением оплаты нужно получить от ЮKassa
+    return_url: 'https://example.com/', //Ссылка на страницу завершения оплаты, это может быть любая ваша страница
+    customization: {
+        //Настройка способа отображения
+        modal: true
+    },
+	error_callback: function(error) {
+        console.log(error);
+    }
+});
+
+// Отображение платежной формы в контейнере
+checkout.render('payment-form');
+`;
+
+// Устанавливаем содержимое скрипта
+			scriptElement2.innerHTML = scriptText;
+			parentElement.appendChild(scriptElement)
+			parentElement.appendChild(scriptElement2)
+
+			
+
+
+		}
+
+		socket.on("generate_widget_for_payment", function(data) {
+    generate_widget_for_payment(data);
+});
+
+
+        function makeBet(){
+            if (!isAuthorized){
+                alert("Вы не зареганы!")
+            }
+	
+			if (gameInProgress){
+				alert("Вы не можете ставить ставки во время игры!")
+			}
+			if (!betAmount.value){
+				alert("Введите ставку!")
+			}
+			if (!gameInProgress && isAuthorized && forGame){
+				if (currentBet){
+					return alert("Вы уже поставили ставку в этой игре!")
+				}
+				socket.emit("new_bet", {"user_id":user_id, game_id:forGame,  bet_in_usd:parseFloat(betAmount.value), baltype:"deposit"})
+				
+			}
+        
+		}
+		socket.on("successful_bet",function(data){
+			currentBet = data;
+			balance.innerHTML = parseFloat(balance.innerHTML) - data.price;
+
+		})
+        socket.on('current_game', function(newData) {
+			/* for (k=0; k<=300; k++){
+				сhart.data.labels.push(numbers[k])
+				chart.data.datasets[0].data.push(values[k])
+			} */
+            
+            currentMultiplierElement.innerHTML = newData.current_multiplier.toFixed(2)+'x';
+			currentMultiplier = newData.current_multiplier.toFixed(2)+'x';
+			
+			if (newData.fake_bets){
+			
+				for (const key in newData.fake_bets){
+	
+					var userName = newData.fake_bets[key]
+						
+						tbody.innerHTML += `<tr>
+					<td><img width="100px" height="100px" src="${newData['photo']}" alt="Avatar"></td>
+					<td>${userName} </td>
+					<td>${key}</td>
+				</tr>
+				`;
+					
+				}
+				
+			}
+        });
+		socket.on("time_remaining", function (data){
+			gameInProgress = false;
+			var secondsToUpcomingGame = data.seconds;
+			forGame = data.for_game;
+			upcomingGameElement.innerHTML = `Следующий раунд под номером ${forGame} через ${secondsToUpcomingGame} секунд! Успейте поставить свою ставку!`;
+			currentMultiplierElement.innerHTML = '';
+	
+		});
+		socket.on("startgame", function(data){
+	
+			upcomingGameElement.innerHTML = '';
+			tbody.innerHTML = '';
+			currentMultiplierElement.innerHTML = '';
+			currentMultiplier = 0;
+			currentGame = data.game_id;
+			
+			if (currentBet){
+				if (currentBet.round_id !=currentGame){
+				currentBet = null
+			}
+			}
+			
+			socket.emit('get_current_game', data);
+			gameInProgress = true;
+
+		});
+    </script>
+   
+</body>
+</html>

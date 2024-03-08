@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Title</title>
+    <style>
+        /* Общие стили */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f2f2f2;
+        }
+
+        /* Стили для шапки */
+        header {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 1em;
+        }
+
+        /* Стили для основного контента */
+        main {
+            padding: 1em;
+        }
+
+        /* Стили для формы */
+        form {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 2em;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Стили для медиа-запросов (экраны с шириной менее 600 пикселей) */
+        @media screen and (max-width: 600px) {
+            form {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Your Website</h1>
+    </header>
+    <main>
+        <form>
+            <div class="form-group">
+                <label for="inputBet">Bet</label>
+                <input type="text" class="form-control" id="inputBet" placeholder="Bet">
+            </div>
+            <div class="form-group">
+                <label for="previousXes">Previous Xes</label>
+                <input type="text" class="form-control" id="previousXes" value="x5 x5 x5 x5 x5" readonly>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </main>
+    <script>
+        // Обработчик события клика
+        document.addEventListener("click", function (event) {
+            // Ваш код обработки события
+            // ...
+        });
+    </script>
+</body>
+</html>

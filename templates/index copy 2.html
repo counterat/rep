@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <style>
+        html{
+            scroll-snap-type: y mandatory;
+        }
+        body{
+            background: url(/static/img/background.png) center center no-repeat;
+            background-size: cover;
+            margin: 0;
+            display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+        }
+        .container{
+            text-align: center;
+            width: 75%;
+            margin:0 auto;
+            display: flex;
+            flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
+        }
+
+        .fake-table{
+         
+width: 100%;;
+height:15vh;
+border-radius: 27vh;
+background-color: rgba(255,255,255,0.1803921568627451);
+border: 0.5vh solid ;
+
+        }
+        button{
+            background: none;
+            border: none;
+            outline:none ;
+            margin-left: auto;
+            width: 80px;
+            cursor: pointer;
+        
+        }
+        button:focus{
+            outline: none;
+        }
+        button{
+            transition: transform 0.3s ease-in-out;
+        }
+        button:hover{
+            transform: scale(1.1);
+        }
+        h2{
+            transition: color 1s ease-in-out;
+        }
+        h2:hover{
+            color: white;
+        }
+        .box{
+            opacity: 0.18;
+            width: 35%;
+            position: relative;
+            margin-top: 100px;
+            transition: opacity 0.5s ease-in-out, transform  0.5s ease-in-out; /* Add width transition */
+            height: 70vh;
+        }
+        .box-image{
+            width: 100%;
+     
+        }
+        .box-primary{
+            opacity: 1;
+            transform: scale(1.2);
+        }
+       .main_menu{
+        
+        border-radius: 37px;
+background-image: linear-gradient(41deg, #6725fb 0%, #8d69ff 99%, #8d69ff 100%);
+
+    opacity: 0;
+    transition: opacity 1s ease-in-out, height 1s ease-in-out; /* Добавлено свойство transition для высоты */
+
+
+       }
+       .opened{
+        border: 6px solid ;
+        height: fit-content;
+        opacity: 1;
+       }
+       .input-bet{
+        position: relative;
+
+       }
+       .main_menu input{
+        border-radius: 29px;
+box-shadow: inset 0px 3px 4px rgba(0,0,0,0.42);
+background-color: #7800ff;
+border: 3px solid ;
+
+       }
+       .main_menu input::placeholder{
+        color: white;
+        font-weight: bold;
+       }
+       .input-group{
+        margin-top: 20px;
+       }
+       .main_menu input:focus {
+    outline: none;
+    background-color: #7800ff;
+}
+#previousXes{
+    color: white;
+    border-radius: 29px;
+box-shadow: inset 0px 3px 4px rgba(0,0,0,0.42);
+background-color: #7800ff;
+border: 3px solid black;
+text-align: center;
+}
+#previousXes:focus{
+    outline: none;
+    background-color: #7800ff;
+}
+.boxes-container {
+  
+    display: flex;
+    align-items: center;
+    width: max-content;
+}
+
+.scroll-container{
+    overflow: auto;
+  display: flex;
+  scroll-snap-type: x mandatory;
+    
+}
+.box-wrap{
+    flex: 0 0 auto;
+  width: 100vw; /* Ширина одного слайда, может быть настроена по вашему усмотрению */
+  scroll-snap-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="fake-table">
+
+        </div>
+        <button style="margin-top: 50px;">
+            <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 99 96" width="100%" height="100%"><defs><image  width="99" height="96" id="img1" href="data:image/png;base64,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"/></defs><style></style><use  href="#img1" x="0" y="0"/></svg> 
+    
+        </button>
+        <div class="scroll-container">
+            <div class="boxes-container">
+                <div class="box-wrap">
+                    <div class="box" id="box1">
+                        <img class="box-image" src="/static/img/box1.png" alt="">
+                        <form class="main_menu">
+                            <div class="cont-for-columns" style="display: flex;
+                            align-items: center;">
+                                <div class="cont-for-left-column form-group col-md-6" style="display: flex; flex-direction: column;">
+                                    <div class="">
+                                
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="inputBet" placeholder="Bet">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text"><i class="fas fa-usd"></i></span>
+                                            </div>
+                                        </div>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="inputBalance" placeholder="Balance">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text"><i class="fas fa-usd"></i></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group col-md-6" >
+                                    <button>
+                                        <h2 style="filter: drop-shadow(0px 7px 3px rgba(0,0,0,0.16)); margin-top: 20PX;">
+                                            OPEN
+                                        </h2>
+                                    </button>
+                                    
+                                </div>
+                                
+                                
+                              
+                                 
+                            </div>
+                            <div class="form-group col-md-12" >
+                                <input type="text" class="form-control" id="previousXes" value="x5 x5 x5 x5 x5" readonly>
+                            </div>
+                                   
+                         
+                        </form>
+                      
+                    </div>
+                </div>
+                
+                <div class="box-wrap">
+                    <div class="box" id="box1">
+                        <img class="box-image" src="/static/img/box1.png" alt="">
+                        <form class="main_menu">
+                            <div class="cont-for-columns" style="display: flex;
+                            align-items: center;">
+                                <div class="cont-for-left-column form-group col-md-6" style="display: flex; flex-direction: column;">
+                                    <div class="">
+                                
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="inputBet" placeholder="Bet">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text"><i class="fas fa-usd"></i></span>
+                                            </div>
+                                        </div>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="inputBalance" placeholder="Balance">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text"><i class="fas fa-usd"></i></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group col-md-6" >
+                                    <button>
+                                        <h2 style="filter: drop-shadow(0px 7px 3px rgba(0,0,0,0.16)); margin-top: 20PX;">
+                                            OPEN
+                                        </h2>
+                                    </button>
+                                    
+                                </div>
+                                
+                                
+                              
+                                 
+                            </div>
+                            <div class="form-group col-md-12" >
+                                <input type="text" class="form-control" id="previousXes" value="x5 x5 x5 x5 x5" readonly>
+                            </div>
+                                   
+                         
+                        </form>
+                      
+                    </div>
+                </div>
+                <div class="box-wrap">
+                    <div class="box" id="box1">
+                        <img class="box-image" src="/static/img/box1.png" alt="">
+                        <form class="main_menu">
+                            <div class="cont-for-columns" style="display: flex;
+                            align-items: center;">
+                                <div class="cont-for-left-column form-group col-md-6" style="display: flex; flex-direction: column;">
+                                    <div class="">
+                                
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="inputBet" placeholder="Bet">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text"><i class="fas fa-usd"></i></span>
+                                            </div>
+                                        </div>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="inputBalance" placeholder="Balance">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text"><i class="fas fa-usd"></i></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group col-md-6" >
+                                    <button>
+                                        <h2 style="filter: drop-shadow(0px 7px 3px rgba(0,0,0,0.16)); margin-top: 20PX;">
+                                            OPEN
+                                        </h2>
+                                    </button>
+                                    
+                                </div>
+                                
+                                
+                              
+                                 
+                            </div>
+                            <div class="form-group col-md-12" >
+                                <input type="text" class="form-control" id="previousXes" value="x5 x5 x5 x5 x5" readonly>
+                            </div>
+                                   
+                         
+                        </form>
+                      
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer style="height: 500px;"></footer>
+       
+    </div>
+    <script>
+        const scrollContainer = document.getElementById('scroll-container');
+      
+        scrollContainer.addEventListener('scroll', function() {
+          const scrollPosition = scrollContainer.scrollLeft;
+      
+          // Определяем, сколько боксов помещается на видимой области
+          const boxesInView = Math.floor(scrollContainer.clientWidth / document.querySelector('.box').clientWidth);
+      
+          // Определяем порядковый номер первого видимого бокса
+          const firstVisibleBox = Math.floor(scrollPosition / document.querySelector('.box').clientWidth);
+      
+          // Меняем порядок боксов в зависимости от прокрутки
+          const newOrder = (firstVisibleBox % 2 === 0) ? 'odd' : 'even';
+      
+          document.querySelectorAll('.box').forEach((box, index) => {
+            box.style.order = newOrder === 'odd' ? index * 2 : index * 2 + 1;
+          });
+        });
+      </script>
+    <style>
+        body {
+ 
+        }
+    
+        .scrollable {
+            overflow-y: scroll;
+            height: 100vh;
+        }
+        
+    </style>
+    
+    <script>
+        document.addEventListener("click", function (event) {
+            const isMainMenuClick = Array.from(mainMenuElements).some(menu => menu.contains(event.target));
+
+            if (!isMainMenuClick) {
+                mainMenuElements.forEach(menu => menu.classList.remove("opened"));
+                document.body.style.overflow = "visible";
+            }
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const boxes = document.querySelectorAll(".box");
+            const mainMenuElements = document.querySelectorAll(".main_menu");
+    
+            const observer = new IntersectionObserver(entries => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && entry.intersectionRatio >= 0.80) {
+                        entry.target.classList.add("box-primary");
+                        document.documentElement.style.scrollSnapType = "none"; // Disable scroll snap
+                    } else {
+                        entry.target.classList.remove("box-primary");
+                        document.documentElement.style.scrollSnapType = "y mandatory"; // Enable scroll snap
+                    }
+                });
+            }, { threshold: 0.80 });
+    
+            boxes.forEach(box => {
+                observer.observe(box);
+    
+                box.addEventListener("click", function () {
+                    const mainMenu = box.querySelector(".main_menu");
+                    const isClickInsideMenu = mainMenu.contains(event.target);
+                    if (mainMenu.classList.contains("opened") && !isClickInsideMenu) {
+                       
+                        
+                        
+                        mainMenu.classList.remove("opened");
+                        document.body.style.overflow = "visible";
+                    } else {
+                        mainMenu.classList.add("opened");
+                        box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        document.body.style.overflow = "hidden";
+                        
+                    }
+                });
+            });
+    
+            // Обработчик событий для закрытия меню при клике вне его
+          
+        });
+    </script>
+    
+
+
+    <script src="https://kit.fontawesome.com/fb4ceca77a.js" crossorigin="anonymous"></script>
+  
+
+    </body>
+</html>

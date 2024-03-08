@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta charset="utf-8">
+    <meta content="ie=edge" http-equiv="x-ua-compatible">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+    <link href="/static/css/pre.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/crash.css">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="/static/js/chart.min.js"></script>
+
+</head>
+<body>
+    <div class="section game-section">
+        <div class="container">
+            <div class="game crash-prefix">
+                <div class="game-sidebar">
+                    <div class="sidebar-block">
+                        <div class="bet-component">
+                            <div class="bet-form">
+                                <div class="form-row">
+                                    <label>
+                                        <div class="form-label"><span>Сумма ставки</span></div>
+                                        <div class="form-row">
+                                            <div class="form-field">
+                                                <input type="text" name="sum" class="input-field no-bottom-radius" value="0.00" id="sum">
+                                                <button type="button"  class="btn btn-bet-clear" data-action="clear">
+                                                    <svg class="icon icon-close">
+                                                        <use xlink:href="/static/img/symbols.svg#icon-close"></use>
+                                                    </svg>
+                                                </button>
+                                                <div class="buttons-group no-top-radius">
+                                                    <button type="button" class="btn btn-action" data-action="plus" data-value="0.10">+0.10</button>
+                                                    <button type="button" class="btn btn-action" data-action="plus" data-value="0.50">+0.50</button>
+                                                    <button type="button" class="btn btn-action" data-action="plus" data-value="1">+1.00</button>
+                                                    <button type="button" class="btn btn-action" data-action="multiply" data-value="2">2X</button>
+                                                    <button type="button" class="btn btn-action" data-action="divide" data-value="2">1/2</button>
+                                                    <button type="button" class="btn btn-action" data-action="all">MAX</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <label>
+                                                <div class="form-label"><span>Авто стоп</span></div>
+                                                <div class="form-field">
+                                                    <div class="input-valid">
+                                                        <input class="input-field" value="2.00" id="betout"><div class="input-suffix"><span>2.00</span>&nbsp;x</div>
+                                                    </div>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </label>
+                                </div>
+                                <button type="button" class="btn btn-green btn-play" style=""><span>Сделать ставку</span></button>
+                                <button type="button" class="btn btn-green btn-withdraw" style=""><span>Вывести</span></button>
+                            </div>
+                            <div class="bet-footer">
+                                <button type="button" class="btn btn-light" data-toggle="modal" data-target="#fairModal">
+                                    <svg class="icon icon-fairness">
+                                        <use xlink:href="/static/img/symbols.svg#icon-fairness"></use>
+                                    </svg><span>Честная игра</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="game-component">
+                    <div class="game-block">
+                        <div class="game-area__wrap">
+                            <div class="game-area">
+                                <div class="game-area-content">
+                                    <div class="crash__connected">
+                                        <canvas id="crashChart" height="642" width="800" style="width: 100%; height: auto;"></canvas>
+                                        <h2><span id="chartInfo">Загрузка</span></h2>
+                                    </div>
+                                    <div class="hash">
+                                        <span class="title">HASH:</span> <span class="text">hash</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="game-history__wrap">
+                        <div class="game-history">
+           
+                            <div class="item checkGame" data-hash="sadsd">
+                                <div class="item-bet" style="color: white">multiplier</div>
+                            </div>
+
+                        </div>
+                    </div>
+         
+                    <div class="game-sign">
+                        <div class="game-sign-wrap">
+                            <div class="game-sign-block auth-buttons">
+                                Чтобы играть, необходимо быть авторизованным 
+                                <a href="/auth/vkontakte" class="btn">
+                                    Войти через
+                                    <svg class="icon icon-vk">
+                                        <use xlink:href="/static/static/img/symbols.svg#icon-vk"></use>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+               
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="section footer-accordion">
+        <div class="accordion-header">
+            <div>Как играть в CRASH?</div>
+            <svg class="icon icon-close accordion-header__switch accordion-header__switch-close">
+                <use xlink:href="/static/img/symbols.svg#icon-close"></use>
+            </svg>
+        </div>
+        <div class="accordion-content" style="display: none;">
+            <p>
+    Crash 
+    
+    "Crash" - играйте на реальные деньги.
+    Самый простой способ игры - установить сумму ставки и использовать режим "автостоп". То есть, установите коэффициент, при котором игра будет автоматически останавливаться при достижении определенного значения. Процесс может быть остановлен вручную в любое время.
+            </p>
+        </div>
+    </div>
+    <div class="section bets-section">
+        <div class="container">
+            <div class="game-stats">
+                <div class="table-heading">
+                    <div class="thead">
+                        <div class="tr">
+                            <div class="th">Игрок</div>
+                            <div class="th">Ставка</div>
+                            <div class="th">Автовывод</div>
+                            <div class="th">Выигрыш</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-stats-wrap" style="min-height: 530px; max-height: 100%">
+                            <tbody id="bets">
+                        
+                                <tr>
+                                    <td class="username">
+                                        <button type="button" class="btn btn-link" data-id="uniqueid">
+                                            <span class="sanitize-user">
+                                                <div class="sanitize-avatar"><img src="avatar" alt=""></div>
+                                                <span class="sanitize-name">username</span>
+                                            </span>
+                                        </button>
+                                    </td>
+                                    <td>
+                                        <div class="bet-number">
+                                            <span class="bet-wrap">
+                                                <span>price</span>
+                                                <svg class="icon icon-coin balance">
+                                                    <use xlink:href="/static/img/symbols.svg#icon-coin"></use>
+                                                </svg>
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td>х</td>
+                                    <td>
+                
+                                        <span class="bet-wrap win">
+                                            <span></span>
+                                            <svg class="icon icon-coin">
+                                                <use xlink:href="/static/img/symbols.svg#icon-coin"></use>
+                                            </svg>
+                                        </span>
+                        
+                                        <span class="bet-wrap wait">
+                                            <svg class="icon">
+                                                <use xlink:href="/static/img/symbols.svg#icon-time"></use>
+                                            </svg>
+                                        </span>
+              
+                                    </td>
+                                </tr>
+       
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        let canvas = document.getElementById('crashChart'),
+		ctx    = canvas.getContext('2d')
+	
+
+	
+	Chart.pluginService.register({
+		afterDraw: function(chart) {
+			var ctx2 = chart,
+				max = ctx2.chartArea.left-5,
+				width = ctx2.width,
+				height = ctx2.height - 10;
+			ctx.save(),
+			ctx.globalCompositeOperation = "destination-over";
+			var lr = Math.round((width - 6) / 83.5) + 1,
+				td = Math.round((height - 1) / 82.5) + 1;
+			ctx.lineWidth = .5,
+			ctx.strokeStyle = "#496b96";
+			for (var s = 0; s < lr; s++) {
+				var c = max + 6 + 83 * s;
+				ctx.beginPath(),
+				ctx.setLineDash([4, 3]),
+				0 === s && ctx.setLineDash([]),
+				ctx.moveTo(c, 0),
+				ctx.lineTo(c, height),
+				ctx.stroke(),
+				ctx.closePath()
+			}
+			for (var u = 0; u < td; u++) {
+				var h = height - (88.8 * u + (u + 1 === td ? 1 : 0)),
+					l = width - 6 - .5 - 9;
+				ctx.beginPath(),
+				ctx.setLineDash([4, 3]),
+				0 === u && ctx.setLineDash([]),
+				ctx.moveTo(max + 6, h),
+				ctx.lineTo(l + max, h),
+				ctx.stroke(),
+				ctx.closePath()
+			}
+			ctx.globalCompositeOperation = "source-over",
+			ctx.restore()
+		}
+	});
+	
+	let shadowLine = Chart.controllers.line.extend({
+		initialize: function () {
+			Chart.controllers.line.prototype.initialize.apply(this, arguments)
+			
+			var ctx = this.chart.ctx
+			var originalStroke = ctx.stroke
+			ctx.stroke = function () {
+				ctx.save()
+				ctx.shadowColor = 'rgba(0,0,0,0.3)'
+				ctx.shadowOffsetX = 4
+				ctx.shadowOffsetY = 4
+				ctx.shadowBlur = 15
+				originalStroke.apply(this, arguments)
+				ctx.restore()
+			}
+		}
+	})
+	Chart.controllers.shadowLine = shadowLine
+	
+	let chart = new Chart(ctx, {
+		type: 'shadowLine',
+		data: {
+			labels: [0],
+			datasets: [{
+				label: '',
+				backgroundColor: 'rgba(73, 134, 245, 0.65)',
+				borderColor: '#bbbbbb',
+				pointRadius: 0,
+				borderWidth: 5,
+				data: [0],
+			}]
+		},
+		options: {
+			animation: false,
+			title: {
+				display: false
+			},
+			legend: {
+				display: false,
+			},
+			layout: {
+				padding: {
+					left: 7
+				}
+			},
+			scales: {
+				xAxes: [{
+					gridLines: {
+						display: false,
+					},
+					ticks: {
+						min: 1,
+						stepSize: 1,
+						display: false,
+					}
+				}],
+				yAxes: [{
+					gridLines: {
+						display: false,
+					},
+					ticks: {
+						beginAtZero:true,
+						padding: 10,
+						min: 1,
+						max: 2,
+						stepSize: 0.3,
+						fontSize: 15,
+						fontStyle: 600,
+						fontFamily: "'Open Sans', sans-serif",
+						fontColor: '#496b96',
+						callback: function(value, index, values) {
+							if(value != '' && value.toFixed(1) == 1) return 0;
+							if(!(index % parseInt(values.length / 5))) {
+								return 'x' + value.toFixed(1);
+						  	}
+						}
+					}
+				}]
+			}
+		}
+	})
+	
+    this.resetPlot = () => {
+		chart.data.labels = [0];
+		chart.data.datasets[0].data = [0];
+		chart.options.scales.yAxes[0].ticks.max = 2;
+		chart.data.datasets[0].backgroundColor = 'rgba(73, 134, 245, 0.65)';
+		chart.update();
+    }
+});
+</script>
+</body>
+</html>
