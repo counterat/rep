@@ -506,7 +506,7 @@ def get_float_handler(round_id):
             
             if (settings.profit_money <=0 and bets_price > 0):
                 
-                random_float = Decimal(random.uniform(1.3, 1.9)).quantize(Decimal('0.00'), rounding=ROUND_DOWN)
+                random_float = Decimal(random.uniform(1.0, 2.0)).quantize(Decimal('0.00'), rounding=ROUND_DOWN)
           
                 return random_float
             if last_zero:
@@ -515,14 +515,14 @@ def get_float_handler(round_id):
                 if (last_zero.id) >= (this_game.id + random.randint(3,10)):
                     
                     return 1
-            if not last_zero or (this_game.id-last_zero.id >= random.randint(5,7)):
+            if not last_zero or (this_game.id-last_zero.id >= random.randint(2,7)):
                 
                 return 1
 
             list = []
-            for i in range(50):
+            for i in range(60):
                 list.append(1)
-            for i in range(15):
+            for i in range(30):
                 list.append(2)
             for i in range(10):
                 list.append(3)
@@ -540,9 +540,9 @@ def get_float_handler(round_id):
             if m > 1:
                 m = random.randint(1, m)
             if m == 1:
-                num =  float(f'{list[0]}.0{random.randint(0,9)}')
+                num =  float(f'{list[0]}.{random.randint(20,99)}')
                 return  num
-
+        
             num = float(f'{m}.{random.randint(0,9)}{random.randint(1,9)}')
             return num
 
