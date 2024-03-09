@@ -56,7 +56,7 @@ def get_stats():
             all_users = session.query(User).all()
             bets = session.query(CrashBets).all()
             games = session.query(Crash).all()
-            settings=session.query(Settings).last()
+            settings=session.query(Settings).first()
     users_data = []
     bets_data = []
     games_data = []

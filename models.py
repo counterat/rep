@@ -102,30 +102,6 @@ engine = create_engine('sqlite:///mydatabase.db', pool_size=10, max_overflow=20)
 Base.metadata.create_all(engine)
 # Создаем сессию SQLAlchemy
 SessionFactory = sessionmaker(bind=engine)
-multipliers = []
-bets_prices = []
-bets_won = []
-with SessionFactory() as session:
-    games = session.query(Crash).all()
-    bets = session.query(CrashBets).all()
-    small_multipliers = []
-    
-    for game in games:
-        multipliers.append(game.multiplier)
-        if game.multiplier < 1.11:
-            small_multipliers.append(game.multiplier)
-    for bet in bets:
-       
-
-            bets_prices.append(bet.price)
-            if bet.won:
-                bets_won.append(bet.won)
-
-    print(multipliers)
-    print(len(small_multipliers))
-    print(len(bets_prices))
-    print(sum(bets_prices))
-    print(sum(bets_won))
 """ session = Session()
 SessionForThread = sessionmaker(bind=engine)
 session_for_thread = SessionForThread() """
