@@ -87,7 +87,7 @@ def index():
 	"url_callback": "https://host.yuriyzholtov.com/payment",
 	"network": "eth",
 	"status": "paid"
-})
+}, "https://api.cryptomus.com/v1/test-webhook/payment")
 
     return render_template('main_design.html', ip_adress=request.remote_addr, is_game_in_progress=is_any_game_in_progress())
     #return render_template('new.html', ip_adress=request.remote_addr, is_game_in_progress=is_any_game_in_progress())
