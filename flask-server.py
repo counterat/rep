@@ -32,12 +32,17 @@ users_and_avatars = {'Эмил': 'https://res.cloudinary.com/du73oow82/image/upl
 
 @app.route('/payment',  methods=['POST', 'GET'])
 def payment_info():
-    print('PAYMENT')
-    print('data:',request.data)
-    print('json:',request.json)
-    print('args:',request.args)
+    response = request.json
+    uuid = response['uuid']
+    with SessionFactory() as session:
+        payment = session.query(Payments).filter(Payments.uuid == uuid).first()
+        if response['status'] == 'paid':
+            payment.status = 'paid'
+            user = session.query(User).filter(User.id==payment.user_id).first()
+            user.deposit_balance += response['merchant_amount']
+            
     print(request.remote_addr)
-    return 1
+    return '1'
 def generate_token(login, password):
     token = jwt.encode({'login': login, 'password': password}, 'secret_key', algorithm='HS256')
     return token
@@ -81,13 +86,14 @@ def get_stats():
 
 @app.route('/')
 def index():
-    cryptomus({
+    response = cryptomus({
 	"uuid": "e1830f1b-50fc-432e-80ec-15b58ccac867",
 	"currency": "ETH",
 	"url_callback": "https://host.yuriyzholtov.com/payment",
 	"network": "eth",
 	"status": "paid"
-}, "https://api.cryptomus.com/v1/test-webhook/payment")
+},  "https://api.cryptomus.com/v1/test-webhook/payment")
+
 
     return render_template('main_design.html', ip_adress=request.remote_addr, is_game_in_progress=is_any_game_in_progress())
     #return render_template('new.html', ip_adress=request.remote_addr, is_game_in_progress=is_any_game_in_progress())
