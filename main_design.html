@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device_width, initial-scale=1.0">
+	<meta name="viewport" content="width=device-width, user-scalable=no">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
@@ -13,6 +14,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
     <title>Document</title>
     <style>
+	    
         html{
             font-family: "Roboto";
             user-select: none; 
@@ -24,6 +26,9 @@
     <style>
         .big-cloud, .small-cloud{
             z-index: 1;
+        }
+        .basicCoeff{
+            color: #8d9dac;
         }
         .notification {
   position: absolute;
@@ -45,6 +50,10 @@ justify-content: center;
 z-index: 12;
 opacity: 1;
   transition: opacity 3s ease; 
+
+}
+.closeBtn{
+    width: 100%; 
 }
 
 .notification.fade-out {
@@ -56,6 +65,11 @@ opacity: 1;
     
     
 }
+.yellow{
+    color:yellow;
+}
+
+	    
 .notification-error{
     background-color: #fb4926;
 }
@@ -76,6 +90,9 @@ opacity: 1;
         .collapsed {
     display: none;
 
+    }
+    .closeBtnCollapse{
+        width: 30%;
     }
     .faketable{
         display: flex;
@@ -118,6 +135,13 @@ font-weight: 500;
     top: 30%;
     left: 50%;
 }
+
+#frog.fast-fly-from-button{
+    animation:jump 0.25s infinite alternate linear, flyFromBottom 1s ease-out;
+    top: 30%;
+    left: 50%;
+}
+
         @keyframes jump {
   0% { transform: translateY(5%); } /* начальная позиция вверху */
   100% { transform: translateY(-5%); } /* конечная позиция внизу */
@@ -164,13 +188,62 @@ font-weight: 500;
         top: 30%; left: 50%
     }
 }
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999999;
+}
+
+.widgetContainer {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    position: relative;
+    width: 90%;
+    height: 90%;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
     </style>
 </head>
 <body>
-    <div id="parent-container"></div>
+
+       <!--  <div class="overlay" id="overlay" onclick="closeWidget()">
+            <div class="widgetContainer" onclick="event.stopPropagation()">
+                <button class="close-btn" onclick="closeWidget()">✖</button>
+                <iframe
+                  src="https://pay.cryptomus.com/pay/1c982ad1-74df-4c6d-8556-5518799df3ea"
+                    width="100%"
+                    height="100%"
+                ></iframe>
+            </div>
+        </div> -->
+        <script> function closeWidget() {
+            // Получаем элемент виджета
+            var overlay = document.getElementById('overlay');
+    overlay.remove()
+            
+        }</script>
     <div class="container" >
         <div class="row" style="margin-top: 25px;">
-            <div class="col-4">
+            <div class="col-4" style="">
                 <div class="balances">
                     <button type="button"  id="dropdownBtn" class="btn btn-primary dropdown-toggle" style="border-radius: 23px;
                     background-color: #ffffff;
@@ -188,23 +261,30 @@ text-align: center;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="
             </div>
         </div>
     
-        <div class="col-3 offset-4" style="display: flex; gap: 10px ;">
+        <div class="col-5 offset-3" style="display: flex; gap: 10px ; justify-content:end;">
             <div class="chat">
                 <button class="chat-button" style="border-radius: 12px;
-            background-color: #b3d6f2;  height: 44px;      
-            border: 2px solid #65a7fb; width: 44px;">
-                <img src="/static/img/icons8-chat-room-48 (1).png" style="width: 100%;" alt="Profile Icon">
- 
+            background-color: #b3d6f2;  height: fit-content;      
+            border: 2px solid #65a7fb; width: fit-content; position:relative;">
+                <img src="/static/img/icons8-chat-room-48 (1).png" style="max-width: 30px;" alt="Profile Icon">
+
               </button>
+		
             </div>
             <div class="profile">
                 <button class="profile-button" style="border-radius: 12px;
-            background-color: #b3d6f2; height: 44px;    
-            border: 2px solid #65a7fb; width: 44px;">
-                <img src="/static/img/icons8-customer-50.png" style="width: 100%; " alt="Profile Icon">
- 
+            background-color: #b3d6f2; height: fit-content;    
+            border: 2px solid #65a7fb; width: fit-content;position:relative;" id="dropdownBtn"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" >
+                <img src="/static/img/icons8-customer-50.png" style="max-width: 30px;" alt="Profile Icon">
+
               </button>
-            </div>
+              <div class="dropdown-menu" style="border-radius: 23px; font-size: 14px; text-align: left; min-width: 250px;">
+                <a class="dropdown-item" onclick="topUpBalanceClicked()" style="position: relative" href="#"><span>Пополнить</span></a>
+                <a class="dropdown-item"  style="position: relative" href="#"><span>Вывести</span></a>
+                
+                
+        </div>
+	    </div>
             
               
         </div>
@@ -214,21 +294,7 @@ text-align: center;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="
     <div class="row" style="margin-top: 15px;">
         <div class="col-12" id="col-for-coefs" style="display: flex;; gap: 5px; overflow-x: auto; -webkit-overflow-scrolling: touch;">
             
-            <div class="coeff_win" style="border-radius: 47px;
-            background-color: #ffffff;  display: flex; justify-content: center; align-items: center; height: 5vh;
-            border: 3px solid #65a7fb; color: #65a7fb;text-align: center; width: 18%; font-weight: 500; flex: 0 0 20%;">
-                <span>1.28</span>   
-            </div>
-            <div class="coeff_lose" style="border-radius: 47px;
-            background-color: #ffffff;  display: flex; justify-content: center; align-items: center;
-            border: 3px solid #ff3400;height: 5vh; color: #ff3400;text-align: center; width: 20%; font-weight: 500; flex: 0 0 20%;">
-                <span>1.00</span>
-            </div>
-            <div class="coeff_big_win" style="border-radius: 47px;
-            background-color: #62a5fb;;  display: flex; justify-content: center; align-items: center; 
-            border: 3px solid #65a7fb; height: 5vh; color: white;text-align: center; width: 20%; font-weight: 500; flex: 0 0 20%;">
-                <span>1.28</span>
-            </div>
+          
 
             
        
@@ -243,7 +309,7 @@ text-align: center;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="
   background-position: center; background-repeat: no-repeat; border-radius: 30px;" >
                     <h2 id="currentMultiplier" style="font-size: 'Roboto'; font-weight: 900; position: absolute; top: 0; right: 5%; color: white;">2x</h2>
                     <div class="container-for-btns" style="position: absolute; top: 4%; left: 3% ; display: flex; flex-direction: column; gap: 5px; width: 35%; overflow-y: auto; max-height: 100%;">
-                        <button class="btn btn-primary" id="closeBtn" onclick="toggleMenu()" style="background-color: rgba(255, 255, 255, 0.1); border: none; font-family: 'Roboto'; border-radius: 47px; color: white; "><i class="fas fa-arrow-left" id="closeBtnText"></i> Закрыть</button>
+                        <button class="btn btn-primary closeBtn"  onclick="toggleMenu()" style="background-color: rgba(255, 255, 255, 0.1); border: none; font-family: 'Roboto'; border-radius: 47px; color: white; transition: width 1s ease; "><i class="fas fa-arrow-left" id="closeBtnText"></i> Закрыть</button>
                         <div class="faketable" style="
                         flex-direction: column;
                         gap: 5px ;
@@ -254,9 +320,10 @@ text-align: center;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="
                         </div>
                         
                     </div>
-                    <div id="container-for-progress" style="display: flex; flex-direction: column; align-items:center ; justify-content:center; position: absolute; left: 46%; top: 4%; width: 50%; border-radius: 23px;
+                    <div id="container-for-progress" style="display: flex; flex-direction: column; align-items:center ; justify-content:center; position: absolute; left: 46%; top: 50%;
+                    transform: translateY(-50%); width: 50%; border-radius: 23px;
                     background-image: linear-gradient(0deg, #b3d6f2 0%, #498fea 100%);
-                    border: 5px solid #b3d6f2; display: none;">
+                    border: 5px solid #b3d6f2; display: none; z-index: 2;">
                       <h3 style="color: #ffffff;
                       font-weight: 900;
                       font-family: 'Roboto'; font-size: 16px;
@@ -270,6 +337,10 @@ text-align: center;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="
                     <img src="/static/img/Слой 3 копия 2 (1).png" alt="" class="small-cloud" style="width: 17%; position: absolute; top: 21%; left: 43%;">
                     <img src="/static/img/Слой 3 копия 2 (1).png" alt="" class="small-cloud" style="width: 17%; position: absolute; top: 55%; left: 80%;">
                     <img src="/static/img/froget animation.gif" style="position: absolute;   width: 40%;  z-index: 10;" alt="" id="frog">
+                    <img src="/static/img/Слой 3 копия 2 (1).png" alt="" class="small-cloud" style="width: 17%; position: absolute; top: 30%; left: 15%;">
+                    <img src="/static/img/Слой 3 копия 2 (1).png" alt="" class="small-cloud" style="width: 17%; position: absolute; top: 30%; left: 60%;">
+                    <img src="/static/img/Слой 3 копия 2 (1).png" alt="" class="small-cloud" style="width: 17%; position: absolute; top: 40%; left: 15%;">
+                    
                 </div>
             </div>
     </div>
@@ -285,9 +356,9 @@ text-align: center;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="
                         border: 2px solid #cde2f2; border-radius: 12PX; flex: 2; max-height: 45px;" >
                         <div class="input-group " style="display: flex; align-items: center;">
                             <div class="input-group-prepend" style="background-color: white; color: white; display: flex; align-items:start; ">
-                              <span class="input-group-text" id="basic-addon1" style="background-color: white; border: none; font-size: 24px; line-height: 0.5; padding-bottom: 0.4em; color: #8d9dac;padding-left: 0;">&times;</span>
+                              <span class="input-group-text basicCoeff" id="basic-addoncoeff" style="background-color: white; border: none; font-size: 24px; line-height: 0.5; padding-bottom: 0.4em; padding-left: 0;">&times;</span>
                             </div>
-                            <input type="text" class="form-control" placeholder="Коефициент" id="coeff" value="2" aria-label="Username" style="border: none; outline: none; padding-left: 4px;" aria-describedby="basic-addon1">
+                            <input type="number" inputmode="numeric" class="form-control" placeholder="Коефициент" id="coeff" value="2" aria-label="Username" style="border: none; outline: none; padding-left: 4px;" aria-describedby="basic-addon1">
                           </div>
                             
                         </button>
@@ -299,7 +370,7 @@ text-align: center;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="
                                   <span class="input-group-text" id="basic-addon1" style="background-color: white; border: none; font-size: 18px; line-height: 0.5; padding-bottom: 0.4em; color: #00b135; padding-left: 0;;">F</span>
                                     
                                 </div>
-                                <input type="text" id="betAmount" class="form-control" placeholder="Ставка" id="bet-input" value="2" aria-label="Username" style="border: none; outline: none; padding-right: 0px; padding-left: 4px; padding-bottom: 5px;padding-top: 5px;" aria-describedby="basic-addon1">
+                                <input inputmode="numeric" type="number" id="betAmount" class="form-control" placeholder="Ставка" id="bet-input" value="2" aria-label="Username" style="border: none; outline: none; padding-right: 0px; padding-left: 4px; padding-bottom: 5px;padding-top: 5px;" aria-describedby="basic-addon1">
                                 
                                 <div class="input-group-append" style="padding-right: 0; padding-left: 0;"><button class="btn btn-primary" onclick="maxPossibleBet()" style="display: flex; align-items: center; justify-content: center; padding-left: 5px; padding-right: 5px; border-radius: 6PX;  font-size: 8px; aspect-ratio: 93/70; background-color: #cde2f2; color: #8ba6ba; border: none; font-family: 'Roboto';"><span>МАКС</span></button>
                          
@@ -314,7 +385,7 @@ text-align: center;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="
                             border: 1px solid #6cabfb; border-radius: 18PX; flex: 1;flex-basis: 70px;">&times1.5</button>
                             <button class="btn btn-primary" onclick="document.querySelector('#betAmount').value = (document.querySelector('#betAmount').value / 2).toFixed(2)"  style="background-color:#99c5ff;padding: 0 0 ; 
                             border: 1px solid #6cabfb; border-radius: 18PX; flex: 1;flex-basis: 70px;">&divide2</button>
-                            <div style="padding: 0 0; display: flex; margin-left: 10%;"><input class="form-check-input"  type="checkbox" value="" style="border-radius: 40px ;" id="auto-withdrawal">
+                            <div style="padding: 0 0; display: flex; padding-left: 10%;"><input class="form-check-input"  type="checkbox" onclick="document.querySelector('#basic-addoncoeff').classList.toggle('yellow')" value="" style="border-radius: 40px ;" id="auto-withdrawal">
                                 <label class="form-check-label" for="defaultCheck1" style="color: #8b9dac; font-family: 'Roboto' ;">
                                   Авто-вывод
                                 </label></div>
@@ -363,21 +434,46 @@ function slidingLeft(){
         document.querySelectorAll('.big-cloud, .small-cloud').forEach(function(element) {
           // Получаем текущее значение left и устанавливаем его как начальное значение анимации
           
- 
-          element.style.animation = `slideLeft 6s linear infinite`;
+          var random_number = Math.floor(Math.random() * 3) + 4;
+          element.style.animation = `slideLeft ${random_number}s linear infinite`;
           
         });}
         var sky = document.querySelector('.sky');
+var isSliding = false
 function slidingLeftBottom(){
     var styleSheet = document.styleSheets[0];
         document.querySelectorAll('.big-cloud, .small-cloud').forEach(function(element) {
           // Получаем текущее значение left и устанавливаем его как начальное значение анимации
           
- 
-          element.style.animation = `slideLeftBottom 2s linear infinite`;
+          var random_number = Math.random() * (4 - 2) + 2;
+          element.style.animation = `slideLeftBottom ${random_number}s linear infinite`;
        
         });
 }
+
+var isSlidingFast = false;
+function slidingFastLeftBottom(){
+    var styleSheet = document.styleSheets[0];
+        document.querySelectorAll('.big-cloud, .small-cloud').forEach(function(element) {
+          // Получаем текущее значение left и устанавливаем его как начальное значение анимации
+          
+          var random_number = Math.random() + 1;
+          element.style.animation = `slideLeftBottom ${random_number}s linear infinite`;
+       
+        });
+}
+
+function slidingVeryFastLeftBottom(){
+    var styleSheet = document.styleSheets[0];
+        document.querySelectorAll('.big-cloud, .small-cloud').forEach(function(element) {
+          // Получаем текущее значение left и устанавливаем его как начальное значение анимации
+          
+ 
+          element.style.animation = `slideLeftBottom 0.5s linear infinite`;
+       
+        });
+}
+
 slidingLeft()
 
 // Получаем ссылки на облака
@@ -413,7 +509,7 @@ let randomNumberInRange = Math.random() * (max - min + 1) + min;
 }
 
 // Вызываем функцию для перемещения облаков каждые 10 миллисекунд
-setInterval(moveClouds, 10);
+setInterval(moveClouds, 1000);
       </script>
           <script src="https://kit.fontawesome.com/fb4ceca77a.js" crossorigin="anonymous"></script>
           <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
@@ -434,6 +530,7 @@ var socket = io.connect(`${window.location.protocol}//${window.location.hostname
         var currentMultiplier = 0;
         var currentMultiplierElement = document.querySelector('#currentMultiplier')
         var currentBet;
+	 
         var forGame;
 		var user_id;
         var currentGame;
@@ -454,7 +551,9 @@ var socket = io.connect(`${window.location.protocol}//${window.location.hostname
         var autoWithdrawalCoeffInput = document.querySelector('#coeff')
     
         socket.on("you_got_new_winning", function(data){
-    
+            
+
+            
             var notification = document.createElement('div');
             notification.classList.add('alert', 'notification-success', 'notification');
             notification.setAttribute('role', 'alert'); 
@@ -473,8 +572,7 @@ var socket = io.connect(`${window.location.protocol}//${window.location.hostname
                     selectedBalance.innerHTML = bonusBalanceElement.innerHTML;
                 }
             }
-            make_bet_button.innerHTML = '<span style=" font-weight: 700; font-size: 26px;">СТАВКА</span>';
-
+            
             make_bet_button.onclick =  makeBet;
             currentBet = null;
 		});
@@ -487,9 +585,17 @@ var socket = io.connect(`${window.location.protocol}//${window.location.hostname
 		};
         
         socket.on('connect', function(data) {
-	var WebApp = window.Telegram.WebApp;       
-        var ipAdress =  `${WebApp.initDataUnsafe.user.id}`;
-	  
+		     var WebApp = window.Telegram.WebApp; 
+	
+		     document.querySelector('#ipAdress').value =  WebApp.initDataUnsafe.user.id;
+            var ipAdress = document.querySelector('#ipAdress').value;
+            alert(ipAdress)
+	
+		
+
+        
+		
+	
             var messageData = {
                 username: ipAdress
             };
@@ -593,10 +699,18 @@ border: 3px solid #65a7fb; color: #65a7fb;text-align: center; width: 18%; font-w
             currentBet = null;
             }}
         socket.on("crash", function(data){
+            isSliding = false;
+            isSlidingFast = false;
+		isSlidingVeryFast = false;
+            make_bet_button.style.background = 'linear-gradient(180deg, #cf090f 0%, #fd4b27 100%, #fd4b27 100%)';
+            make_bet_button.style.border = '2px solid #cde2f2';
 	autoWithdrawalCoeff = null;
             used_childs = [];
             faketable.innerHTML = '';
             frog.classList.remove('fly-from-button')
+            if (( 'fast-fly-from-button' in frog.classList)){
+                frog.classList.remove('fast-fly-from-button');
+            }
             frog.classList.add('fly-top-right');
 
             slidingLeft()
@@ -706,7 +820,38 @@ checkout.render('payment-form');
 		}
 
 		socket.on("generate_widget_for_payment", function(data) {
-    generate_widget_for_payment(data);
+            alert(324234)
+            var overlay = document.createElement("div");
+overlay.classList.add("overlay");
+overlay.id = "overlay";
+var widgetContainer = document.createElement("div");
+widgetContainer.classList.add("widgetContainer");
+widgetContainer.onclick = function(event) {
+    event.stopPropagation();
+};
+            var closeButton = document.createElement("button");
+closeButton.classList.add("close-btn");
+closeButton.textContent = "✖";
+closeButton.onclick = closeWidget;
+
+// Создаем iframe
+var iframe = document.createElement("iframe");
+iframe.src = data['url'];
+iframe.height = "100%";
+iframe.width = "100%";
+
+// Добавляем кнопку закрытия в контейнер
+widgetContainer.appendChild(closeButton);
+
+// Добавляем iframe в контейнер
+widgetContainer.appendChild(iframe);
+
+// Добавляем контейнер в overlay
+overlay.appendChild(widgetContainer);
+
+// Добавляем overlay в body
+document.body.appendChild(overlay);
+console.log(overlay)
 });
 
 function maxPossibleBet(){
@@ -715,7 +860,7 @@ function maxPossibleBet(){
 }
 
 function makeBet(){
-      
+
             if (!isAuthorized){
                 var notification = document.createElement('div');
             notification.classList.add('alert', 'notification-error', 'notification');
@@ -786,10 +931,16 @@ function makeBet(){
 		};
         socket.on("successful_bet",function(data){
 			currentBet = data;
-    
+            var notification = document.createElement('div');
+            notification.classList.add('alert', 'notification-blue', 'notification');
+            notification.setAttribute('role', 'alert'); 
+            notification.textContent ="Вы успешно поставили ставку";
+console.log('stavka')
+			sky.appendChild(notification);
+            console.log(notification)
             if (data.baltype == 'deposit'){
 			balanceElement.innerHTML = `${(parseFloat(balanceElement.innerHTML) - data.price).toFixed(2)} F` ;
-            if (selectedBalanceObject.baltype == 'deposit'){
+                if (selectedBalanceObject.baltype == 'deposit'){
             selectedBalance.innerHTML = balanceElement.innerHTML;}}
             else {
                 
@@ -801,22 +952,51 @@ function makeBet(){
       
                 }
             }
-       
-            var notification = document.createElement('div');
-            notification.classList.add('alert', 'notification-blue', 'notification');
-            notification.setAttribute('role', 'alert'); 
-            notification.textContent ="Вы успешно поставили ставку"
-			sky.appendChild(notification);
+
+            
+            make_bet_button.style.background = '#99c5ff';
+            make_bet_button.style.border = '2px solid #6cabfb';
+            make_bet_button.innerHTML =  '<span style="font-weight: 700; font-size: 26px;">...</span>';
 		});
+var isSlidingVeryFast = false;
         socket.on("current_game", function(newData) {
 			/* for (k=0; k<=300; k++){
 				сhart.data.labels.push(numbers[k])
 				chart.data.datasets[0].data.push(values[k])
 			} */
-           
-	    if (frog.classList != ['fly-from-button']){
+          
+            if (newData.current_multiplier.toFixed(2) < 2 && !isSliding){
+            isSliding = true;
+            slidingLeftBottom()
+            if (frog.classList != ['fly-from-button']){
 		frog.classList.add('fly-from-button');
 	    }
+            }
+
+            else if (newData.current_multiplier.toFixed(2) > 10 && !isSlidingVeryFast) {
+                isSlidingVeryFast = true;
+                slidingVeryFastLeftBottom()
+                if (!( 'fast-fly-from-button' in frog.classList)){
+                frog.classList.add('fast-fly-from-button');
+            }
+            }
+
+            else if (( newData.current_multiplier.toFixed(2) > 2 )&& (!isSlidingFast)){
+                
+                isSlidingFast = true;
+                
+            slidingFastLeftBottom()
+
+            if (!( 'fast-fly-from-button' in frog.classList)){
+
+frog.classList.remove('fly-from-button');
+
+frog.classList.add('fast-fly-from-button');
+            }
+            }
+            
+
+	   
             gameInProgress = true;
             containerForProgress.style.display = 'none'
             if (!currentBet){
@@ -853,31 +1033,45 @@ function makeBet(){
                     pickUpWInning()
             }
            
-            var randomNumber = Math.floor(Math.random() * 100);
+            
 try{
-            if (randomNumber < 40){
+            
            var childs =faketable.querySelectorAll('*');
             
            var randomIndex = Math.floor(Math.random() * childs.length);
            var child = childs[randomIndex];
            if (!(child in used_childs)) {
-           var span = child.querySelector('.btn.btn-primary.coeff');
+            var randomNumber = Math.floor(Math.random() * 100);
+            var span = child.querySelector('.btn.btn-primary.coeff');
+         
+            if (randomNumber < 40 & !span.innerHTML){
+            
+           
 span.innerHTML= currentMultiplier;
            used_childs.push(child);
            }}}catch(error){}
         });
         socket.on("time_remaining", function (data){
+		make_bet_button.onclick = makeBet;
+        
+        if ( 'fast-fly-from-button' in frog.classList){
+                frog.classList.remove('fast-fly-from-button');
+            }
             if (frog.classList != ['fly-top-right']){
 		    frog.classList.add('fly-top-right');
 	    }
+            if (!currentBet){
+                make_bet_button.style.background = 'linear-gradient(180deg, #cf090f 0%, #fd4b27 100%, #fd4b27 100%)';
+            make_bet_button.style.border = '2px solid #cde2f2';
             make_bet_button.innerHTML =  '<span style=" font-weight: 700; font-size: 26px;">СТАВКА</span>';
-            
+            }
             make_bet_button.onclick = makeBet;
 			gameInProgress = false;
 			var secondsToUpcomingGame = data.seconds;
 			forGame = data.for_game;
 
-            progressBarOfGame.style.width = `${data.seconds_remained*10}%`;
+            
+            progressBarOfGame.style.width = `${data.seconds_remained*1.667}%`;
             containerForProgress.style.display = 'flex'
         
             currentMultiplierElement.innerHTML = '';
@@ -897,9 +1091,7 @@ data.forEach(bet => {
                           <span style="font-weight: 300; font-size: 8px; ">${username}</span><br>
                           <span style="font-weight: 400; font-size: 12px; ">${randomNumber} F</span>
                         </div>
-                        <div  class="btn btn-primary coeff" style="display: flex; align-items:center; justify-content:center; position: absolute; text-align: center; top: -2%; right:-5%; background-color: #e5dee5; border-radius:16px; padding: 0; font-size:12px;">
-                                 
-                                </div>
+                        <div  class="btn btn-primary coeff" style="display: flex; align-items:center; justify-content:center; position: absolute; text-align: center; top: -2%; right:-5%; background-color: #e5dee5; border-radius:16px; padding: 0; font-size:12px;"></div>
                       </button>`
     }
 });
@@ -907,10 +1099,10 @@ data.forEach(bet => {
 		});
         socket.on("startgame", function(data){
             frog.classList.remove('fly-top-right');
-
+            frog.classList.remove('fast-fly-from-button');
             frog.classList.add('fly-from-button')
         
-            slidingLeftBottom()
+    
             if (currentBet){
               
             make_bet_button.onclick = pickUpWInning
@@ -948,8 +1140,9 @@ socket.on('fake_bets', function(newData){
 })
 
 function toggleMenu(){
-        var closeBtn = document.querySelector('#closeBtn');
+        var closeBtn = document.querySelector('.closeBtn');
         var closeBtnText = document.querySelector('#closeBtnText');
+        closeBtn.classList.toggle('closeBtnCollapse')
         faketable.classList.toggle('collapsed')
         faketable.classList.toggle('faketable')
         
@@ -992,7 +1185,7 @@ var notifications = document.querySelectorAll('.notification');
 
 // Проходимся по каждому элементу
 notifications.forEach(function(notification) {
-    notification.classList.add('fade-out');
+    notification.style.opacity = 0;
     notification.addEventListener('transitionend', function(){
         notification.remove();
 
@@ -1000,7 +1193,18 @@ notifications.forEach(function(notification) {
 });
 
 }
-setInterval(terminateNotifications, 10)
+setInterval(terminateNotifications, 1000)
+var inputs = document.querySelectorAll("input");
+
+  // Для каждого инпута добавляем обработчик события keypress
+  inputs.forEach(function(input) {
+    input.addEventListener("keypress", function(event) {
+      if (event.key === "Enter") {
+        input.blur();
+      }
+    });
+  });
+	    
     </script>
 </body>
 </html>
