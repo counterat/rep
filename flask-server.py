@@ -34,15 +34,15 @@ users_and_avatars = {'Эмил': 'https://res.cloudinary.com/du73oow82/image/upl
 def payment_info():
     response = request.json
     uuid = response['uuid']
-    with SessionFactory() as session:
-        payment = session.query(Payments).filter(Payments.uuid == uuid).first()
-        if response['status'] == 'paid':
-            payment.status = 'paid'
-            user = session.query(User).filter(User.id==payment.user_id).first()
-            user.deposit_balance += response['merchant_amount']
-	    session.commit()
-            
-    print(request.remote_addr)
+    if 'test' not in response['order_id']:
+        with SessionFactory() as session:
+            payment = session.query(Payments).filter(Payments.uuid == uuid).first()
+            if response['status'] == 'paid':
+                payment.status = 'paid'
+                user = session.query(User).filter(User.id==payment.user_id).first()
+                user.deposit_balance += response['merchant_amount']
+                
+        print(request.remote_addr)
     return '1'
 def generate_token(login, password):
     token = jwt.encode({'login': login, 'password': password}, 'secret_key', algorithm='HS256')
@@ -273,7 +273,7 @@ def pickupwinning_handler(data):
                 if bet.baltype == 'deposit':
                     current_game.profit -= win
                     user.deposit_balance += win
-                    current_game.profit -= win
+                 
                     user.total_amount_of_money_won += win
                     settings.profit_money -= win
                 else:
@@ -374,7 +374,7 @@ def check_and_execute():
                         random_num = random.random()
                         if random_num > 0.3:
                          
-                            bet = new_bet_create(1, game.id, random.randint(1, 10),status=0,fake=0,baltype='deposit')
+                            bet = new_bet_create(1, game.id, random.randint(1, 10),status=0,fake=0,baltype='deposit') 
 
                 bets_to_send = []
                 num_elements = random.randint(0, 2)
@@ -499,9 +499,9 @@ def broadcast_current_game_handler(session):
 
                     attributes_dict = {column.name: getattr(user, column.name) for column in User.__table__.columns if column.name != 'created_at'}
                             
-                    socketio.emit("crash", {"amount": bet.price, "user":attributes_dict, 'baltype':bet.baltype})
-            else:
-                socketio.emit('crash')
+                    socketio.emit("crashed_bet", {"amount": bet.price, "user":attributes_dict, 'baltype':bet.baltype, "game_id" : game.id})
+            
+            socketio.emit('crash')
                     
                     
             current_multiplier = 1
@@ -545,7 +545,8 @@ def new_bet_create(user_id, round_id, price, status, fake, baltype):
         with session.begin():
             settings = session.query(Settings).first()
             settings.profit_money += price
-            
+            game = session.query(Crash).filter(Crash.id == round_id).first()
+            game.profit += price
             new_bet = CrashBets(user_id = user_id, round_id = round_id, price = price,  status = 0, fake = 0, baltype = baltype )
             session.add(new_bet)
     return new_bet

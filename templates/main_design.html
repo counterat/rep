@@ -587,7 +587,7 @@ var socket = io.connect(`${window.location.protocol}//${window.location.hostname
         socket.on('connect', function(data) {
 		     var WebApp = window.Telegram.WebApp; 
 	
-		     document.querySelector('#ipAdress').value =  WebApp.initDataUnsafe.user.id;
+		    /* document.querySelector('#ipAdress').value =  WebApp.initDataUnsafe.user.id; */
             var ipAdress = document.querySelector('#ipAdress').value;
             alert(ipAdress)
 	
@@ -612,7 +612,7 @@ var socket = io.connect(`${window.location.protocol}//${window.location.hostname
 colForCoefs.innerHTML =` <div class="coeff_lose" style="border-radius: 47px;
 background-color: #ffffff;  display: flex; justify-content: center; align-items: center;
 border: 3px solid #ff3400;height: 5vh; color: #ff3400;text-align: center; width: 20%; font-weight: 500; flex: 0 0 20%;">
-<span>${element}</span>
+<span>${parseFloat( element)+'x'}</span>
 </div>${colForCoefs.innerHTML}`
 
 }
@@ -621,7 +621,7 @@ else if (parseFloat(element) >= 2){
 colForCoefs.innerHTML = `<div class="coeff_big_win" style="border-radius: 47px;
 background-color: #62a5fb;;  display: flex; justify-content: center; align-items: center; 
 border: 3px solid #65a7fb; height: 5vh; color: white;text-align: center; width: 20%; font-weight: 500; flex: 0 0 20%;">
-<span>${parseFloat(element)}</span>
+<span>${parseFloat(parseFloat( element)+'x')}</span>
 </div>${colForCoefs.innerHTML}`
 }
 else{
@@ -629,7 +629,7 @@ else{
 colForCoefs.innerHTML =   `<div class="coeff_win" style="border-radius: 47px;
 background-color: #ffffff;  display: flex; justify-content: center; align-items: center; height: 5vh;
 border: 3px solid #65a7fb; color: #65a7fb;text-align: center; width: 18%; font-weight: 500; flex: 0 0 20%;">
-<span>${element}</span>   
+<span>${parseFloat( element)+'x'}</span>   
 </div>${colForCoefs.innerHTML}`
 }
             });
@@ -698,6 +698,32 @@ border: 3px solid #65a7fb; color: #65a7fb;text-align: center; width: 18%; font-w
 			socket.emit("pickupwinning", {bet : currentBet.id})
             currentBet = null;
             }}
+
+socket.on("crashed_bet", function(data){
+    try{
+            if (currentBet.round_id == currentGame){
+                if (data.user.id == user_id){
+                	var notification = document.createElement('div');
+            notification.classList.add('alert', 'notification-error', 'notification');
+            notification.setAttribute('role', 'alert'); 
+            notification.textContent = `Вы проиграли ${data.amount} F`
+			sky.appendChild(notification);
+
+            
+				balanceElement.innerHTML =( data.user.deposit_balance).toFixed(2) + ' F'
+                bonusBalanceElement.innerHTML = data.user.bonus_balance.toFixed(2) +' F'
+            }
+                if (selectedBalanceObject.baltype == 'deposit'){
+                selectedBalance.innerHTML = balanceElement.innerHTML;}
+                else{
+                    selectedBalance.innerHTML = bonusBalanceElement.innerHTML;
+                }
+                currentBet = null;
+			}}catch (error){}
+
+
+})
+            
         socket.on("crash", function(data){
             isSliding = false;
             isSlidingFast = false;
@@ -724,11 +750,11 @@ border: 3px solid #65a7fb; color: #65a7fb;text-align: center; width: 18%; font-w
             
             }
             else if (parseFloat(currentMultiplier) >= 2){
-              
+   
                 colForCoefs.innerHTML = `<div class="coeff_big_win" style="border-radius: 47px;
             background-color: #62a5fb;;  display: flex; justify-content: center; align-items: center; 
             border: 3px solid #65a7fb; height: 5vh; color: white;text-align: center; width: 20%; font-weight: 500; flex: 0 0 20%;">
-                <span>${parseFloat(currentMultiplier)}</span>
+                <span>${currentMultiplier}</span>
             </div>${colForCoefs.innerHTML}`
             }
             else{
@@ -739,7 +765,7 @@ border: 3px solid #65a7fb; color: #65a7fb;text-align: center; width: 18%; font-w
                 <span>${currentMultiplier}</span>   
             </div>${colForCoefs.innerHTML}`
             }
-            try{
+            /* try{
             if (currentBet.round_id == currentGame){
                 if (data.user.id == user_id){
                 	var notification = document.createElement('div');
@@ -758,7 +784,7 @@ border: 3px solid #65a7fb; color: #65a7fb;text-align: center; width: 18%; font-w
                     selectedBalance.innerHTML = bonusBalanceElement.innerHTML;
                 }
                 currentBet = null;
-			}}catch (error){}
+			}}catch (error){} */
                 
 		})
         function topUpBalanceClicked(){
