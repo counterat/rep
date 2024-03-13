@@ -30,7 +30,14 @@ fake_bets = []
 current_multiplier = 1
 users_and_avatars = {'Эмил': 'https://res.cloudinary.com/du73oow82/image/upload/v1707406838/ujaqwypgrispgiptrjx9.jpg', 'ДОКУМЕНТ': 'https://res.cloudinary.com/du73oow82/image/upload/v1707406839/ef7odcaabmojrofncyvk.jpg', '𝐌𝐞𝐧𝐝𝐚 𝐪𝐨𝐥𝐦𝐚𝐝𝐢 𝐝𝐢𝐥 ❤️': 'https://res.cloudinary.com/du73oow82/image/upload/v1707406840/ppqit540z9zgtonwvhbm.jpg', 'Qwerty': 'https://res.cloudinary.com/du73oow82/image/upload/v1707406842/rjpgsxltppsnduysacby.jpg', 'Рустам': 'https://res.cloudinary.com/du73oow82/image/upload/v1707406844/ohzez5sn6vkzjuxduibl.jpg', 'Gulmira': 'https://res.cloudinary.com/du73oow82/image/upload/v1707406845/wqboqod0ewjlm6sl5frg.jpg', 'Лиля': 'https://res.cloudinary.com/du73oow82/image/upload/v1707406847/vgg5lteawwm8i7jleaun.jpg', '𓄂༗࿐ Шохрухбе 𓄂༗࿐': 'https://res.cloudinary.com/du73oow82/image/upload/v1707406848/quh5u11e2xsc7pg7ptvv.jpg', 'Бахтиёр': 'https://res.cloudinary.com/du73oow82/image/upload/v1707406849/qddpautopk6py0jlv3qt.jpg', '𓃬 𖤓 ДеД 𖤓 ♚Шох♚ Ака 𓃬': 'https://res.cloudinary.com/du73oow82/image/upload/v1707406851/ogkyynvcrkne3zbzjj6d.jpg'}
 
-
+@app.route('/payment',  methods=['POST', 'GET'])
+def payment_info():
+    print('PAYMENT')
+    print('data:',request.data)
+    print('json:',request.json)
+    print('args:',request.args)
+    print(request.remote_addr)
+    return 1
 def generate_token(login, password):
     token = jwt.encode({'login': login, 'password': password}, 'secret_key', algorithm='HS256')
     return token
@@ -74,6 +81,14 @@ def get_stats():
 
 @app.route('/')
 def index():
+    cryptomus({
+	"uuid": "e1830f1b-50fc-432e-80ec-15b58ccac867",
+	"currency": "ETH",
+	"url_callback": "https://host.yuriyzholtov.com/payment",
+	"network": "eth",
+	"status": "paid"
+})
+
     return render_template('main_design.html', ip_adress=request.remote_addr, is_game_in_progress=is_any_game_in_progress())
     #return render_template('new.html', ip_adress=request.remote_addr, is_game_in_progress=is_any_game_in_progress())
     with open('C:/Users/Юрий/Desktop/gambling/templates/plane.html', 'r', encoding='utf-8') as file:
@@ -145,7 +160,7 @@ def top_up_balance_handler(data):
                         "currency" :'rub',
                         "order_id":generate_unique_uuid(session),
                         'url_return':'http://127.0.0.1:5000/#',
-                        
+                        'url_callback':"https://host.yuriyzholtov.com/payment"
 
 
 
