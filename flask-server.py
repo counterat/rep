@@ -12,7 +12,8 @@ import threading
 from bs4 import BeautifulSoup
 #from pyrog_client import get_random_members_of_chat
 import re
-#from payments import create_payment_for_user
+from payments import cryptomus
+import uuid
 import jwt 
 def replace_braces_with_empty_string(html):
     cleaned_html = re.sub(r'[{}$@]', '', html)
@@ -118,6 +119,18 @@ def handle_message(data):
 
             socketio.emit("successful_authorizing", {"user":attributes_dict}, room=client_sid)
 
+def generate_unique_uuid(session):
+    while True:
+        # Генерируем случайный UUID
+        new_uuid = uuid.uuid4()
+   
+        # Проверяем, существует ли уже такой UUID в базе данных
+        
+        existing_record = session.query(Payments).filter(Payments.order_id == str(new_uuid)).first()
+        if not existing_record:
+                # Если такого UUID еще нет в базе данных, возвращаем его
+            return str(new_uuid)
+
 @socketio.on('topUpBalance')
 def top_up_balance_handler(data):
     with SessionFactory() as session:   
@@ -127,11 +140,24 @@ def top_up_balance_handler(data):
                 amount = data.get('amount')
                 user = session.query(User).filter(User.id == user_id).first()
                 if user:
-                    payment, idempotence_key = create_payment_for_user(amount, 'RUB')
+                    payment = cryptomus({
+                        "amount":f"{amount}",
+                        "currency" :'rub',
+                        "order_id":generate_unique_uuid(session),
+                        'url_return':'http://127.0.0.1:5000/#',
+                        
+
+
+
+
+                    }, 'https://api.cryptomus.com/v1/payment')
+                    
                     if payment:
-                        payment_in_db = Payments(user_id=user.id, amount = float(amount), currency = 'RUB', id_in_yookassa = payment.id, status = payment.status, created_at = datetime.now(), confirmation_token = payment.confirmation.confirmation_token, paid = payment.paid, idempotence_key=str(idempotence_key))
+                      
+                        payment_in_db = Payments(user_id=user.id, amount = float(amount), currency = 'RUB',  uuid= payment['result']['uuid'], status = payment['result']['status'], created_at = datetime.now(), order_id = payment['result']['order_id'], address = payment['result']['address'], url = payment['result']['url'] )
                         session.add(payment_in_db)
-                        socketio.emit('generate_widget_for_payment', {'confirmation_token':payment.confirmation.confirmation_token}, room=client_id)
+                        socketio.emit('generate_widget_for_payment', {'url':payment['result']['url']}, room=client_id)
+                
                 else:
                     socketio.emit('error', {'messsage':'you are not authorized'}, room=client_id)
 
@@ -165,8 +191,7 @@ def new_bet_handler(data:dict):
            
                     
                     user.deposit_balance -= bet_in_usd
-                    settings.profit_money += bet_in_usd
-                    game.profit += bet_in_usd
+                    
 
                     new_bet = session.merge(new_bet_create(user_id = user.id, round_id = game.id, price = bet_in_usd,  status = 0, fake = 0, baltype = baltype ))
                
@@ -204,39 +229,40 @@ def new_bet_handler(data:dict):
                 socketio.emit("impossible_to_make_a_bet", {"message":"The game is already finished"}, room=client_sid)
 @socketio.on('pickupwinning')
 def pickupwinning_handler(data):  
-   
-    with SessionFactory() as session:
-        with session.begin():
-            client_sid = request.sid  
+    if current_multiplier > 1.02:
+        with SessionFactory() as session:
+            with session.begin():
+                client_sid = request.sid  
 
-            bet = session.query(CrashBets).filter(CrashBets.id == data['bet']).first()
-            current_game = get_current_game()
-            current_game = session.merge(current_game)
-            settings = session.query(Settings).first()
-            if bet.round_id != current_game.id:
-                return 
-            if bet.status == 1:
-                return socketio.emit("error", {"message":"Вы уже проиграли в этой игре"}, room=client_sid)
-            if bet.status == 2:
-                return socketio.emit("error", {"message":"Вы уже забрали свой выигрыш!"}, room=client_sid)
-            bet.status = 2
-            user = session.query(User).filter(User.id == bet.user_id).first()
-            multiplier_at_the_moment = current_multiplier
-            win = bet.price * multiplier_at_the_moment
-            if bet.baltype == 'deposit':
-                user.deposit_balance += win
-                current_game.profit -= win
-                user.total_amount_of_money_won += win
-                settings.profit_money -= win
-            else:
-                user.bonus_balance += win
-            user.number_of_wins += 1
-            
-            
-            bet.status = 2
-            bet.won += win
-            attributes_dict = {column.name: getattr(user, column.name) for column in User.__table__.columns if column.name != 'created_at'}
-            socketio.emit("you_got_new_winning", {"amount":win, "multiplier_at_the_moment": multiplier_at_the_moment, "user":attributes_dict , "baltype":bet.baltype}, room=client_sid)
+                bet = session.query(CrashBets).filter(CrashBets.id == data['bet']).first()
+                current_game = get_current_game()
+                current_game = session.merge(current_game)
+                settings = session.query(Settings).first()
+                if bet.round_id != current_game.id:
+                    return 
+                if bet.status == 1:
+                    return socketio.emit("error", {"message":"Вы уже проиграли в этой игре"}, room=client_sid)
+                if bet.status == 2:
+                    return socketio.emit("error", {"message":"Вы уже забрали свой выигрыш!"}, room=client_sid)
+                bet.status = 2
+                user = session.query(User).filter(User.id == bet.user_id).first()
+                multiplier_at_the_moment = current_multiplier
+                win = bet.price * multiplier_at_the_moment
+                if bet.baltype == 'deposit':
+                    current_game.profit -= win
+                    user.deposit_balance += win
+                    current_game.profit -= win
+                    user.total_amount_of_money_won += win
+                    settings.profit_money -= win
+                else:
+                    user.bonus_balance += win
+                user.number_of_wins += 1
+                
+                
+                bet.status = 2
+                bet.won += win
+                attributes_dict = {column.name: getattr(user, column.name) for column in User.__table__.columns if column.name != 'created_at'}
+                socketio.emit("you_got_new_winning", {"amount":win, "multiplier_at_the_moment": multiplier_at_the_moment, "user":attributes_dict , "baltype":bet.baltype}, room=client_sid)
 
 
 
@@ -321,12 +347,12 @@ def check_and_execute():
                     used_users.append(username)
             used_bets = []
             for i in range(61):
-                """ if i %10 == 0:
+                if i %10 == 0:
               
                         random_num = random.random()
                         if random_num > 0.3:
-                            print('id', game.id)
-                            bet = new_bet_create(1, game.id, random.randint(1, 10),status=0,fake=0,baltype='deposit') """
+                         
+                            bet = new_bet_create(1, game.id, random.randint(1, 10),status=0,fake=0,baltype='deposit')
 
                 bets_to_send = []
                 num_elements = random.randint(0, 2)
@@ -379,28 +405,39 @@ def process_crashed_bets(crashed_bets):
                 for bet in crashed_bets:
                     user = session.query(User).filter(User.id==bet.user_id).first()
                     game = session.query(Crash).filter(Crash.id == bet.round_id).first()
+                    settings = session.query(Settings).first()
                     if bet.baltype == 'deposit':
-                  
+                        settings.profit_money += bet.price
+                        game.profit += bet.price
                         user.total_amount_of_money_losed += bet.price
                         user.number_of_loses +=1
     return crashed_bets
 
 session_for_tests= SessionFactory()
 def test_pick(current_multiplier, game):
-    with session_for_tests.begin():
+    
         try:
-                        game = session.merge(game)
-                        bets_all = session_for_tests.query(CrashBets).filter(CrashBets.round_id == game.id).filter(CrashBets.status == 0).all()
-                        random_bet = random.choice(bets_all)
-                        random_bet.won = random_bet.price * current_multiplier
-                        random_bet.status =2 
-        except:
+                        with session_for_tests.begin():
+                            settings = session_for_tests.query(Settings).first()
+                            game = session_for_tests.merge(game)
+                            
+                            bets_all = session_for_tests.query(CrashBets).filter(CrashBets.round_id == game.id).filter(CrashBets.status == 0).all()
+                            if bets_all:
+                                random_bet = random.choice(bets_all)
+                                if random_bet.user_id == 1:
+                                    win = random_bet.price * current_multiplier
+                                    random_bet.won = win
+                                    random_bet.status =2 
+                                    settings.profit_money -= win 
+                                    game.profit -= win
+        except Exception as ex:
                     'ok'
+        finally:
+            session_for_tests.commit()
 
 
 def broadcast_current_game_handler(session):
-    if len(multipliers) < 101:
-        print(len(multipliers), multipliers)
+
     
     def wrapper():
         with session.begin():
@@ -418,9 +455,9 @@ def broadcast_current_game_handler(session):
                     
                         
                 current_multiplier = list_of_multipliers[i]
-                """ chance = random.random()
+                chance = random.random()
                 if chance >= 0.05:
-                    test_pick(current_multiplier=current_multiplier, game=game) """
+                    test_pick(current_multiplier=current_multiplier, game=game)
                 socketio.emit('current_game', {'game_id':game.id, "current_multiplier":list_of_multipliers[i]})
                 if 10>current_multiplier > 4:
                     time.sleep(0.01)
@@ -486,7 +523,7 @@ def new_bet_create(user_id, round_id, price, status, fake, baltype):
         with session.begin():
             settings = session.query(Settings).first()
             settings.profit_money += price
-            game.profit += price
+            
             new_bet = CrashBets(user_id = user_id, round_id = round_id, price = price,  status = 0, fake = 0, baltype = baltype )
             session.add(new_bet)
     return new_bet
@@ -501,17 +538,22 @@ def get_float_handler(round_id):
             bets_price = 0
             for bet in bets_in_db:
                 bets_price += bet.price
+            
+        
             if settings.profit_money <= 0-(settings.bank_mines*0.2) :
                 return 1
-            
+            if last_zero:
+                if this_game.id - last_zero.id == 1:
+                    if random.random() <= 0.2:
+                        return 1 
+
             if (settings.profit_money <=0 and bets_price > 0):
                 
                 random_float = Decimal(random.uniform(1.0, 2.0)).quantize(Decimal('0.00'), rounding=ROUND_DOWN)
           
                 return random_float
             if last_zero:
-                print(last_zero.id)
-                print('ХУЙЙ')
+               
                 if (last_zero.id) >= (this_game.id + random.randint(3,10)):
                     
                     return 1
@@ -522,15 +564,15 @@ def get_float_handler(round_id):
             list = []
             for i in range(60):
                 list.append(1)
-            for i in range(30):
-                list.append(2)
             for i in range(10):
+                list.append(2)
+            for i in range(5):
                 list.append(3)
-            for i in range(9):
-                list.append(4)
             for i in range(3):
-                list.append(5)
+                list.append(4)
             for i in range(2):
+                list.append(5)
+            for i in range(1):
                 list.append(10)
             list.append(50)
             random.shuffle(list)
@@ -578,7 +620,7 @@ if __name__ == '__main__':
             for sett in all_setts:
                 session.delete(sett)
             games = session.query(Crash).all()
-            settings = Settings(bank_mines=100000)
+            settings = Settings(bank_mines=1000)
             session.add(settings)
             usersss = session.query(User).all()
             if usersss:

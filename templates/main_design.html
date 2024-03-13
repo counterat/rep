@@ -188,15 +188,59 @@ font-weight: 500;
         top: 30%; left: 50%
     }
 }
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999999;
+}
+
+.widgetContainer {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    position: relative;
+    width: 90%;
+    height: 90%;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
     </style>
 </head>
 <body>
-<!--     <iframe
-          src="https://pay.cryptomus.com/widget/edf80f52-02b7-4ee1-990d-cc8d0fd79d85"
-          height="294px"
-          width="440px"
-        ></iframe> -->
-    <div id="parent-container"></div>
+
+       <!--  <div class="overlay" id="overlay" onclick="closeWidget()">
+            <div class="widgetContainer" onclick="event.stopPropagation()">
+                <button class="close-btn" onclick="closeWidget()">✖</button>
+                <iframe
+                  src="https://pay.cryptomus.com/pay/1c982ad1-74df-4c6d-8556-5518799df3ea"
+                    width="100%"
+                    height="100%"
+                ></iframe>
+            </div>
+        </div> -->
+        <script> function closeWidget() {
+            // Получаем элемент виджета
+            var overlay = document.getElementById('overlay');
+    overlay.remove()
+            
+        }</script>
     <div class="container" >
         <div class="row" style="margin-top: 25px;">
             <div class="col-4" style="">
@@ -235,8 +279,8 @@ text-align: center;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="
 
               </button>
               <div class="dropdown-menu" style="border-radius: 23px; font-size: 14px; text-align: left; min-width: 250px;">
-                <a class="dropdown-item" style="position: relative" href="#"><span>Реальный</span></a>
-                <a class="dropdown-item"  style="position: relative" href="#"><span>Бонус</span></a>
+                <a class="dropdown-item" onclick="topUpBalanceClicked()" style="position: relative" href="#"><span>Пополнить</span></a>
+                <a class="dropdown-item"  style="position: relative" href="#"><span>Вывести</span></a>
                 
                 
         </div>
@@ -250,21 +294,7 @@ text-align: center;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="
     <div class="row" style="margin-top: 15px;">
         <div class="col-12" id="col-for-coefs" style="display: flex;; gap: 5px; overflow-x: auto; -webkit-overflow-scrolling: touch;">
             
-            <div class="coeff_win" style="border-radius: 47px;
-            background-color: #ffffff;  display: flex; justify-content: center; align-items: center; height: 5vh;
-            border: 3px solid #65a7fb; color: #65a7fb;text-align: center; width: 18%; font-weight: 500; flex: 0 0 20%;">
-                <span>1.28</span>   
-            </div>
-            <div class="coeff_lose" style="border-radius: 47px;
-            background-color: #ffffff;  display: flex; justify-content: center; align-items: center;
-            border: 3px solid #ff3400;height: 5vh; color: #ff3400;text-align: center; width: 20%; font-weight: 500; flex: 0 0 20%;">
-                <span>1.00</span>
-            </div>
-            <div class="coeff_big_win" style="border-radius: 47px;
-            background-color: #62a5fb;;  display: flex; justify-content: center; align-items: center; 
-            border: 3px solid #65a7fb; height: 5vh; color: white;text-align: center; width: 20%; font-weight: 500; flex: 0 0 20%;">
-                <span>1.28</span>
-            </div>
+          
 
             
        
@@ -557,7 +587,7 @@ var socket = io.connect(`${window.location.protocol}//${window.location.hostname
         socket.on('connect', function(data) {
 		     var WebApp = window.Telegram.WebApp; 
 	
-		     document.querySelector('#ipAdress').value =  WebApp.initDataUnsafe.user.id;
+		     /*document.querySelector('#ipAdress').value =  WebApp.initDataUnsafe.user.id;*/
             var ipAdress = document.querySelector('#ipAdress').value;
             alert(ipAdress)
 	
@@ -790,7 +820,38 @@ checkout.render('payment-form');
 		}
 
 		socket.on("generate_widget_for_payment", function(data) {
-    generate_widget_for_payment(data);
+            alert(324234)
+            var overlay = document.createElement("div");
+overlay.classList.add("overlay");
+overlay.id = "overlay";
+var widgetContainer = document.createElement("div");
+widgetContainer.classList.add("widgetContainer");
+widgetContainer.onclick = function(event) {
+    event.stopPropagation();
+};
+            var closeButton = document.createElement("button");
+closeButton.classList.add("close-btn");
+closeButton.textContent = "✖";
+closeButton.onclick = closeWidget;
+
+// Создаем iframe
+var iframe = document.createElement("iframe");
+iframe.src = data['url'];
+iframe.height = "100%";
+iframe.width = "100%";
+
+// Добавляем кнопку закрытия в контейнер
+widgetContainer.appendChild(closeButton);
+
+// Добавляем iframe в контейнер
+widgetContainer.appendChild(iframe);
+
+// Добавляем контейнер в overlay
+overlay.appendChild(widgetContainer);
+
+// Добавляем overlay в body
+document.body.appendChild(overlay);
+console.log(overlay)
 });
 
 function maxPossibleBet(){

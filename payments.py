@@ -42,7 +42,7 @@ def cryptomus(data:dict, url:str):
         "merchant": merchant,
         "sign": signature,
     }, json=data)
-    print(response.json())
+    return (response.json())
 
-cryptomus(data={'amount':"100", "currency": "usd", "order_id": "ыфвывss"},url='https://api.cryptomus.com/v1/payment')
-cryptomus(data ={'uuid': '91b138be-1bcd-4725-b3c7-f5ee75b60366', 'order_id': 'ыфвывss'}, url='https://api.cryptomus.com/v1/payment/info')
+new_uuid = uuid.uuid4()
+print(new_uuid)

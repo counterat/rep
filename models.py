@@ -87,15 +87,16 @@ class Payments(Base):
     user_id = Column(Integer)
     amount = Column(Float)
     currency = Column(String)
-    capture = Column(Boolean, default= True)
+    uuid = Column(String)
     description = Column(String)
-    id_in_yookassa = Column(String)
+    order_id = Column(String)
     status = Column(String)
     created_at = Column(DateTime)
-    confirmation_token = Column(String)
-    paid = Column(Boolean, default=False)
-    idempotence_key = Column(String)
-
+    network = Column(String, default='tron')
+    address = Column(String)
+    status = Column(String)
+    url = Column(String)
+    
 engine = create_engine('sqlite:///mydatabase.db', pool_size=10, max_overflow=20)
 
 
