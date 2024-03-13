@@ -40,6 +40,7 @@ def payment_info():
             payment.status = 'paid'
             user = session.query(User).filter(User.id==payment.user_id).first()
             user.deposit_balance += response['merchant_amount']
+	    session.commit()
             
     print(request.remote_addr)
     return '1'
