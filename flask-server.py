@@ -648,7 +648,7 @@ if __name__ == '__main__':
             for sett in all_setts:
                 session.delete(sett)
             games = session.query(Crash).all()
-            settings = Settings(bank_mines=1000)
+            settings = Settings(bank_mines=10000)
             session.add(settings)
             usersss = session.query(User).all()
             if usersss:
