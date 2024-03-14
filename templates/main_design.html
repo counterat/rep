@@ -603,19 +603,57 @@ var socket = io.connect(`${window.location.protocol}//${window.location.hostname
         socket.on('connect', function(data) {
 		     var WebApp = window.Telegram.WebApp; 
 	
-		    document.querySelector('#ipAdress').value =  WebApp.initDataUnsafe.user.id;
+		document.querySelector('#ipAdress').value =  WebApp.initDataUnsafe.user.id;
             var ipAdress = document.querySelector('#ipAdress').value;
-            alert(ipAdress)
-	
-		
 
-        
-		
 	
-            var messageData = {
+		
+            var xhr = new XMLHttpRequest();
+
+// Указываем метод и URL для запроса
+xhr.open("POST", "/authorize", true);
+
+// Устанавливаем заголовок Content-Type для передачи данных в формате JSON
+xhr.setRequestHeader("Content-Type", "application/json");
+
+// Определяем функцию, которая будет вызвана при завершении запроса
+xhr.onreadystatechange = function () {
+  if (xhr.readyState === XMLHttpRequest.DONE) {
+    
+    var data = JSON.parse(xhr.response);
+    
+    isAuthorized = true;
+            user_id = data.user['id'];
+       
+            balanceElement.innerHTML =  (data.user.deposit_balance).toFixed(2) + ' F';
+            bonusBalanceElement.innerHTML = (data.user.bonus_balance).toFixed(2) + ' F';
+            if (selectedBalanceObject.baltype == 'deposit'){
+            selectedBalance.innerHTML = (data.user.deposit_balance).toFixed(2) + ' F';	
+            
+            }
+            else{
+                selectedBalance.innerHTML = (data.user.bonus_balance).toFixed(2) + ' F';
+            }
+            
+			
+  }
+};
+
+// Создаем объект с данными для отправки на сервер
+var messageData = {
                 username: ipAdress
             };
 
+
+// Преобразуем объект с данными в формат JSON
+var jsonData = JSON.stringify(messageData);
+
+// Отправляем запрос на сервер с данными
+xhr.send(jsonData);
+        
+		
+	
+           
             socket.emit('authorize', messageData);
 			socket.emit('get_current_game', messageData)
             socket.emit('get_previous_xes');
@@ -968,8 +1006,8 @@ function makeBet(){
 			return sky.appendChild(notification);
                     }
                 }
-                alert(selectedBalanceObject.baltype)
-				socket.emit("d", {"user_id":user_id, game_id:forGame,  bet_in_usd:parseFloat(betAmount.value), baltype:selectedBalanceObject.baltype})
+     
+				socket.emit("new_bet", {"user_id":user_id, game_id:forGame,  bet_in_usd:parseFloat(betAmount.value), baltype:selectedBalanceObject.baltype})
 			}
         
 		};
@@ -1208,7 +1246,7 @@ function depositBalanceIsMain(){
     
 }
 function bonusBalanceIsMain(){
-    alert('bonus')
+   
     selectedBalanceObject.baltype = 'bonus'
     selectedBalance.innerHTML = bonusBalanceElement.innerHTML;
 }

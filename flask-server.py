@@ -115,11 +115,11 @@ def handle_disconnect():
     client_sid = request.sid  
 
 
-@socketio.on('authorize')
-def handle_message(data):
+@app.route('/authorize', methods=['POST'])
+def handle_message():
     with SessionFactory() as session:
         with session.begin():
-            client_sid = request.sid  
+            data = request.json
 
             username = data.get("username")
             user = session.query(User).filter(User.username == username).first()
@@ -132,14 +132,14 @@ def handle_message(data):
     for column in Payments.__table__.columns
     if column.name != 'created_at'  # Исключаем поле 'created_at'
 }
-                    socketio.emit('successful_authorizing', {"user":attributes_dict, 'payments':payment_attributes_dict}, room=client_sid)
+                    return{"user":attributes_dict, 'payments':payment_attributes_dict}
                     return
-                socketio.emit('successful_authorizing', {"user":attributes_dict}, room=client_sid)
-                return
+                print({"user":attributes_dict})
+                return{"user":attributes_dict}
             new_user = session.merge( create_new_user(username))
             attributes_dict = {column.name: getattr(new_user, column.name) for column in User.__table__.columns}
-
-            socketio.emit("successful_authorizing", {"user":attributes_dict}, room=client_sid)
+            print({"user":attributes_dict})
+            return {"user":attributes_dict}
 
 def generate_unique_uuid(session):
     while True:
