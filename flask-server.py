@@ -130,10 +130,13 @@ def handle_message(data):
                     socketio.emit('successful_authorizing', {"user":attributes_dict, 'payments':payment_attributes_dict}, room=client_sid)
                     return
                 socketio.emit('successful_authorizing', {"user":attributes_dict}, room=client_sid)
+                socketio.emit('successful_authorizing', {"user":attributes_dict}, room=client_sid)
+                socketio.emit('successful_authorizing', {"user":attributes_dict}, room=client_sid)
                 return
             new_user = session.merge( create_new_user(username))
             attributes_dict = {column.name: getattr(new_user, column.name) for column in User.__table__.columns}
-
+            socketio.emit("successful_authorizing", {"user":attributes_dict}, room=client_sid)
+            socketio.emit("successful_authorizing", {"user":attributes_dict}, room=client_sid)
             socketio.emit("successful_authorizing", {"user":attributes_dict}, room=client_sid)
 
 def generate_unique_uuid(session):
