@@ -116,6 +116,7 @@ def handle_message(data):
             client_sid = request.sid  
 
             username = data.get("username")
+            print(username, "user")
             user = session.query(User).filter(User.username == username).first()
             if user:
                 attributes_dict = {column.name: getattr(user, column.name) for column in User.__table__.columns}
