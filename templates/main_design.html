@@ -130,6 +130,8 @@ font-weight: 500;
     margin-right: -11px;
 }
 
+
+
 #frog.fly-from-button{
     animation:jump 1s infinite alternate linear, flyFromBottom 1s ease-out;
     top: 30%;
@@ -393,7 +395,7 @@ text-align: center;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="
                         
                     </div>
                     <div class="buttons-there-right" style="display: flex; justify-content: center; align-items: center;  width: 40%;">
-                        <button onclick="makeBet()" id="make_bet_button" class="btn btn-danger" style="white-space: nowrap; border-radius: 15px; border: 2px solid #cde2f2;; color: #f5f5f5; background: linear-gradient(180deg, #cf090f 0%, #fd4b27 100%, #fd4b27 100%); width: 100%; min-height: 80px; font-family: 'Roboto'; font-weight: 900; ">
+                        <button onclick="makeBet()" id="make_bet_button" class="btn btn-danger" style="transition: background 1s ease; white-space: nowrap; border-radius: 15px; border: 2px solid #cde2f2;; color: #f5f5f5; background: linear-gradient(180deg, #cf090f 0%, #fd4b27 100%, #fd4b27 100%); width: 100%; min-height: 80px; font-family: 'Roboto'; font-weight: 900; ">
                             <span style="font-weight: 700; font-size: 26px;">СТАВКА</span>
                         </button>
                         
@@ -514,6 +516,20 @@ setInterval(moveClouds, 1000);
           <script src="https://kit.fontawesome.com/fb4ceca77a.js" crossorigin="anonymous"></script>
           <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
     <script>
+        var buttons = document.querySelectorAll('button');
+
+// Перебираем каждую кнопку и добавляем обработчики событий
+buttons.forEach(function(button) {
+    button.addEventListener('mousedown', function() {
+        // При нажатии на кнопку уменьшаем ее размер
+        button.style.transform = 'scale(0.9)';
+    });
+
+    button.addEventListener('mouseup', function() {
+        // При отпускании кнопки возвращаем ее к исходному размеру
+        button.style.transform = 'scale(1)';
+    });
+});
         var notificationContainer = document.querySelector('#notificationContainer');
         var faketable = document.querySelector('.faketable');
         var isAuthorized = false;
@@ -589,7 +605,7 @@ var socket = io.connect(`${window.location.protocol}//${window.location.hostname
 	
 		    document.querySelector('#ipAdress').value =  WebApp.initDataUnsafe.user.id;
             var ipAdress = document.querySelector('#ipAdress').value;
-         
+            alert(ipAdress)
 	
 		
 
@@ -728,6 +744,7 @@ socket.on("crashed_bet", function(data){
             isSliding = false;
             isSlidingFast = false;
 		isSlidingVeryFast = false;
+        
             make_bet_button.style.background = 'linear-gradient(180deg, #cf090f 0%, #fd4b27 100%, #fd4b27 100%)';
             make_bet_button.style.border = '2px solid #cde2f2';
 	autoWithdrawalCoeff = null;
@@ -951,7 +968,8 @@ function makeBet(){
 			return sky.appendChild(notification);
                     }
                 }
-				socket.emit("new_bet", {"user_id":user_id, game_id:forGame,  bet_in_usd:parseFloat(betAmount.value), baltype:selectedBalanceObject.baltype})
+                alert(selectedBalanceObject.baltype)
+				socket.emit("d", {"user_id":user_id, game_id:forGame,  bet_in_usd:parseFloat(betAmount.value), baltype:selectedBalanceObject.baltype})
 			}
         
 		};
@@ -1190,7 +1208,7 @@ function depositBalanceIsMain(){
     
 }
 function bonusBalanceIsMain(){
-	    console.log('bonus')
+    alert('bonus')
     selectedBalanceObject.baltype = 'bonus'
     selectedBalance.innerHTML = bonusBalanceElement.innerHTML;
 }

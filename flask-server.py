@@ -87,7 +87,13 @@ def get_stats():
 
 @app.route('/')
 def index():
-
+    response = cryptomus({
+	"uuid": "e1830f1b-50fc-432e-80ec-15b58ccac867",
+	"currency": "ETH",
+	"url_callback": "https://host.yuriyzholtov.com/payment",
+	"network": "eth",
+	"status": "paid"
+},  "https://api.cryptomus.com/v1/test-webhook/payment")
 
 
     return render_template('main_design.html', ip_adress=request.remote_addr, is_game_in_progress=is_any_game_in_progress())
@@ -116,7 +122,6 @@ def handle_message(data):
             client_sid = request.sid  
 
             username = data.get("username")
-            print(username, "user")
             user = session.query(User).filter(User.username == username).first()
             if user:
                 attributes_dict = {column.name: getattr(user, column.name) for column in User.__table__.columns}
@@ -130,13 +135,10 @@ def handle_message(data):
                     socketio.emit('successful_authorizing', {"user":attributes_dict, 'payments':payment_attributes_dict}, room=client_sid)
                     return
                 socketio.emit('successful_authorizing', {"user":attributes_dict}, room=client_sid)
-                socketio.emit('successful_authorizing', {"user":attributes_dict}, room=client_sid)
-                socketio.emit('successful_authorizing', {"user":attributes_dict}, room=client_sid)
                 return
             new_user = session.merge( create_new_user(username))
             attributes_dict = {column.name: getattr(new_user, column.name) for column in User.__table__.columns}
-            socketio.emit("successful_authorizing", {"user":attributes_dict}, room=client_sid)
-            socketio.emit("successful_authorizing", {"user":attributes_dict}, room=client_sid)
+
             socketio.emit("successful_authorizing", {"user":attributes_dict}, room=client_sid)
 
 def generate_unique_uuid(session):
@@ -195,13 +197,18 @@ def new_bet_handler(data:dict):
             user_id = data['user_id']
             bet_in_usd = data['bet_in_usd']
             baltype = data['baltype']
+            print(baltype, 882)
 
             game = session.query(Crash).filter(Crash.id == game_id).first()
             user = session.query(User).filter(User.id == user_id).first()
-    
-            if not (user.deposit_balance >= bet_in_usd):
-               
-                        return socketio.emit("not_enough_funds_on_the_balance", {"message":"не хватает средств на балансе!"}, room=client_sid)
+            if baltype == 'deposit':
+                if not (user.deposit_balance >= bet_in_usd):
+                
+                            return socketio.emit("not_enough_funds_on_the_balance", {"message":"не хватает средств на балансе!"}, room=client_sid)
+            if baltype == 'bonus':
+                if not (user.bonus_balance >= bet_in_usd):
+                
+                            return socketio.emit("not_enough_funds_on_the_balance", {"message":"не хватает средств на балансе!"}, room=client_sid)
             
             if game.status == 0:
                 if settings.min_bet > bet_in_usd:
