@@ -656,6 +656,7 @@ border: 3px solid #65a7fb; color: #65a7fb;text-align: center; width: 18%; font-w
 
        });
         socket.on('successful_authorizing', function(data){
+		alert('successful_authorizing')
             isAuthorized = true;
             user_id = data.user.id;
             balanceElement.innerHTML =  (data.user.deposit_balance).toFixed(2) + ' F';
