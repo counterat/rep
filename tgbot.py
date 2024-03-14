@@ -136,7 +136,7 @@ async def handle_detailed_stats(query:types.CallbackQuery):
                 all_deposit_balances.append(user['deposit_balance'])
                 all_bonus_balances.append(user['bonus_balance'])
                 total_amount_of_money_won.append(user['total_amount_of_money_won'])
-                total_amount_of_money_losed.appen(user['total_amount_of_money_losed'])
+                total_amount_of_money_losed.append(user['total_amount_of_money_losed'])
 
 
             await query.message.answer(f'''
