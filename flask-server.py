@@ -87,13 +87,7 @@ def get_stats():
 
 @app.route('/')
 def index():
-    response = cryptomus({
-	"uuid": "e1830f1b-50fc-432e-80ec-15b58ccac867",
-	"currency": "ETH",
-	"url_callback": "https://host.yuriyzholtov.com/payment",
-	"network": "eth",
-	"status": "paid"
-},  "https://api.cryptomus.com/v1/test-webhook/payment")
+
 
 
     return render_template('main_design.html', ip_adress=request.remote_addr, is_game_in_progress=is_any_game_in_progress())
