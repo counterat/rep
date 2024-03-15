@@ -417,6 +417,7 @@ text-align: center;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="
 
     </div>
     <input type="text" style="display: none; " value="{{ip_adress}}" id="ipAdress">
+    <input type="text" style="display: none; " value="{{ip_adress}}" id="tgusername">
     <input type="text" style="display: none; " value="{{is_game_in_progress}}" id="gameInProgress">
     <script>
 
@@ -603,7 +604,9 @@ var socket = io.connect(`${window.location.protocol}//${window.location.hostname
         socket.on('connect', function(data) {
 		     var WebApp = window.Telegram.WebApp; 
 	
-		document.querySelector('#ipAdress').value =  WebApp.initDataUnsafe.user.id;
+		/* document.querySelector('#ipAdress').value =  WebApp.initDataUnsafe.user.id;*/
+       /* document.querySelector('#tgusername').value =  WebApp.initDataUnsafe.user.username;*/
+        var tgusername =  document.querySelector('#tgusername').value
             var ipAdress = document.querySelector('#ipAdress').value;
 
 	
@@ -641,7 +644,8 @@ xhr.onreadystatechange = function () {
 
 // Создаем объект с данными для отправки на сервер
 var messageData = {
-                username: ipAdress
+                id: ipAdress,
+                tgusername : tgusername
             };
 
 

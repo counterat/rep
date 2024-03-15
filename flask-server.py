@@ -62,6 +62,46 @@ def authadmin():
 
 session_for_api = SessionFactory()
 
+fuck_up_next_game = False
+
+
+@app.route('changebalanceforuser2', methods=['POST'])
+def changebalanceforuser2():
+    cookie_value = request.cookies.get('aero')
+    if jwt.decode(cookie_value, "secret_key", algorithms="HS256"):
+        user_id = request.json['user_id']
+        amount = request.json['amount']
+        user = session_for_api.query(User).filter(User.id == user_id).first()
+        user.deposit_balance = amount
+        session_for_api.commit()
+        return jsonify({ 'is_ok':True})
+    return jsonify({ 'is_ok':False})
+@app.route('changebalanceforuser', methods=['POST'])
+def changebalanceforuser():
+    cookie_value = request.cookies.get('aero')
+    if jwt.decode(cookie_value, "secret_key", algorithms="HS256"):
+        user_id = request.json['user_id']
+        user = session_for_api.query(User).filter(User.id == user_id).first()
+        if user:
+            return jsonify({ 'is_ok':True})
+    return jsonify({ 'is_ok':False})
+@app.route('/get_users', methods=['POST'])
+def get_users_for_tgbot():
+    cookie_value = request.cookies.get('aero')
+    if jwt.decode(cookie_value, "secret_key", algorithms="HS256"):
+        all_users = session_for_api.query(User).all()
+        users_data = []
+        for user in all_users:
+            users_data.append({column.name: getattr(user, column.name) for column in User.__table__.columns if column.name != 'created_at'})
+            return jsonify({ 'is_ok':True,'users_data':users_data})
+    return jsonify({ 'is_ok':False})
+@app.route('/fuckup', methods=['POST'])
+def fuckup():
+    cookie_value = request.cookies.get('aero')
+    if jwt.decode(cookie_value, "secret_key", algorithms="HS256"):
+        fuck_up_next_game = True
+        return jsonify({'is_ok':True})
+    return jsonify({'is_ok':False})
 @app.route('/get_stats', methods=['POST'])
 def get_stats():
     cookie_value = request.cookies.get('aero')
@@ -121,7 +161,7 @@ def handle_message():
         with session.begin():
             data = request.json
 
-            username = data.get("username")
+            username = data.get("id")
             user = session.query(User).filter(User.username == username).first()
             if user:
                 attributes_dict = {column.name: getattr(user, column.name) for column in User.__table__.columns}
@@ -136,7 +176,7 @@ def handle_message():
                     return
                 
                 return{"user":attributes_dict}
-            new_user = session.merge( create_new_user(username))
+            new_user = session.merge( create_new_user(username,data.get("tgusername") ))
             attributes_dict = {column.name: getattr(new_user, column.name) for column in User.__table__.columns}
           
             return {"user":attributes_dict}
@@ -437,10 +477,10 @@ def check_and_execute():
 
 
 
-def create_new_user(username):
+def create_new_user(username, username1):
     with SessionFactory() as session:   
             with session.begin():
-                new_user = User(username=username, deposit_balance=1000, bonus_balance=1000)
+                new_user = User(telegram_id=username, username=username1, deposit_balance=1000, bonus_balance=1000)
                 session.add(new_user)
     return new_user
 
@@ -459,24 +499,28 @@ def process_crashed_bets(crashed_bets):
     return crashed_bets
 
 session_for_tests= SessionFactory()
-def test_pick(current_multiplier, game):
+def test_pick(current_multiplier, game_id):
     
         try:
                         with session_for_tests.begin():
                             settings = session_for_tests.query(Settings).first()
-                            game = session_for_tests.merge(game)
-                            
+                            game = session_for_tests.query(Crash).filter(Crash.id == game_id).first()
+
                             bets_all = session_for_tests.query(CrashBets).filter(CrashBets.round_id == game.id).filter(CrashBets.status == 0).all()
                             if bets_all:
                                 random_bet = random.choice(bets_all)
                                 if 1 <= random_bet.user_id <= 10:
                                     win = random_bet.price * current_multiplier
+                                    print('win', random_bet.price, current_multiplier,  win, win-random_bet.price)
                                     random_bet.won = win - random_bet.price
                                     random_bet.status =2 
                                     settings.profit_money -= win - random_bet.price 
-                                    game.profit -= win - random_bet.price
+                                    game.profit = game.profit - ( win - random_bet.price)
+                                    print( win - random_bet.price, game.profit, win, random_bet.price,  'kkk')
                                     user = session_for_tests.query(User).filter(User.id == random_bet.user_id).first()
                                     user.deposit_balance += win
+                                    user.total_amount_of_money_won += ( win - random_bet.price)
+                                    session_for_tests.commit()
 
         except Exception as ex:
                     'ok'
@@ -505,7 +549,7 @@ def broadcast_current_game_handler(session):
                 current_multiplier = list_of_multipliers[i]
                 chance = random.random()
                 if chance >= 0.5 and  (1.1<=current_multiplier<=3.5):
-                    test_pick(current_multiplier=current_multiplier, game=game)
+                    test_pick(current_multiplier=current_multiplier, game_id=game.id)
                 socketio.emit('current_game', {'game_id':game.id, "current_multiplier":list_of_multipliers[i]})
                 if 10>current_multiplier > 4:
                     time.sleep(0.01)
@@ -631,7 +675,7 @@ def get_float_handler(round_id):
             if m > 1:
                 m = random.randint(1, m)
             if m == 1:
-                num =  float(f'{list[0]}.{random.randint(20,99)}')
+                num =  float(f'{list[0]}.{random.randint(0,99)}')
                 return  num
         
             num = float(f'{m}.{random.randint(0,9)}{random.randint(1,9)}')
@@ -646,7 +690,11 @@ def start_game(data:dict, session_for_thread):####
             
         if game:
             game.status = 1
-            game.multiplier = get_float_handler(data['round_id'])  
+            if not fuck_up_next_game:
+                game.multiplier = get_float_handler(data['round_id'])  
+            else:
+                game.multiplier = 1
+                fuck_up_next_game = False
             multipliers.append(float(game.multiplier))
         
        

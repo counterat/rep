@@ -4,6 +4,8 @@ from aiogram.enums import ParseMode
 from aiogram.types import MenuButtonWebApp, WebAppInfo
 import asyncio
 import requests
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
 TOKEN = '7006701541:AAFk2DBM_wW2ZYUzFU0sx3QXtf4PWue2ooU'
 
 
@@ -18,6 +20,8 @@ def create_play_button():
 def create_buttons_for_admin():
     builder = ReplyKeyboardBuilder()
     builder.button(text='Статистика')
+    builder.button(text='Слив')
+    builder.button(text='Поменять баланс юзеру')
     return builder
 """ 🚀 """
 
@@ -29,6 +33,101 @@ def create_buttons_for_detailed_stats():
     builder.adjust(1,1,1)
     return builder
     
+@dp.message(lambda msg : msg.text == 'Слив')
+async def fuck_up_next_game( message:  types.Message):
+    data = {"login":"admin", "password":"DHICvBAAS0ue"}
+    resp = requests.post('https://host.yuriyzholtov.com/authadmin',json=data)
+    cookie = resp.cookies.get('aero')
+    cookies ={
+        "aero":cookie
+    }
+
+    resp1 = requests.post('https://host.yuriyzholtov.com/fuckup', cookies=cookies)
+  
+    answer_from_server = resp1.json()
+    is_ok = answer_from_server['is_ok']
+    if is_ok:
+        await message.answer('Следующая игра будет слита!')
+        return  
+    await message.answer('Что то пошло не так...')
+    return 
+
+
+class States(StatesGroup):
+    first = State()
+    second = State()
+
+@dp.message(States.first)
+async def input_num(message:  types.Message, state: FSMContext):
+    try:
+        num = int(message.text)
+        data = {"login":"admin", "password":"DHICvBAAS0ue"}
+        data = {"login":"admin", "password":"DHICvBAAS0ue"}
+        resp = requests.post('https://host.yuriyzholtov.com/authadmin',json=data)
+        cookie = resp.cookies.get('aero')
+        cookies ={
+            "aero":cookie
+        }
+
+        resp1 = requests.post('https://host.yuriyzholtov.com/changebalanceforuser', cookies=cookies, json={"user_id":num})
+    
+        answer_from_server = resp1.json()
+        if answer_from_server['is_ok']:
+            
+            await state.set_state(States.second)
+            await state.set_data({'user_id':num})
+            return  await message.answer('Введите сумму желаемую сумму баланса')
+        return  await message.answer('Что то пошло не так...')
+    except:
+        return await message.answer('Вы ввели не число!Повторите попытку еще раз')
+
+
+@dp.message(States.second)
+async def input_num2(message:  types.Message, state: FSMContext):
+    try:
+        amount = int(message.text)
+        data = {"login":"admin", "password":"DHICvBAAS0ue"}
+        data = {"login":"admin", "password":"DHICvBAAS0ue"}
+        resp = requests.post('https://host.yuriyzholtov.com/authadmin',json=data)
+        cookie = resp.cookies.get('aero')
+        cookies ={
+            "aero":cookie
+        }
+
+        resp1 = requests.post('https://host.yuriyzholtov.com/changebalanceforuser2', cookies=cookies, json={"user_id":await state.get_data()['user_id'], "amount":amount})
+    
+        answer_from_server = resp1.json()
+        if answer_from_server['is_ok']:
+            return  await message.answer('Успешно изменен баланс!')
+        return  await message.answer('Что то пошло не так...')
+    except:
+        return await message.answer('Вы ввели не число!Повторите попытку еще раз')
+    finally:
+        await state.clear()
+@dp.message(lambda msg : msg.text == 'Поменять баланс юзеру')
+async def fuck_up_next_game( message:  types.Message, state: FSMContext):
+    data = {"login":"admin", "password":"DHICvBAAS0ue"}
+    resp = requests.post('https://host.yuriyzholtov.com/authadmin',json=data)
+    cookie = resp.cookies.get('aero')
+    cookies ={
+        "aero":cookie
+    }
+
+    resp1 = requests.post('https://host.yuriyzholtov.com/get_users', cookies=cookies)
+  
+    answer_from_server = resp1.json()
+    if answer_from_server['is_ok']:
+        users_data = answer_from_server['users_data']
+        msg = ''
+        for user in users_data:
+            msg += f'''\n {user['id']}) telegram_id = {user['telegram_id']} , username = {user['telegram_id']} , deposit_balance = {user['deposit_balance']}'''
+            await message.answer(msg)
+            await state.set_state(States.first)
+            
+            await message.answer('отправьте номер под которым находится юзер которому вы хотите поменять баланс')
+
+            return
+    return  await message.answer('Что то пошло не так...')
 
 @dp.message(lambda msg : msg.text == 'Статистика')
 async def show_stats(message:  types.Message):
@@ -51,7 +150,6 @@ async def show_stats(message:  types.Message):
 Данные приведены снизу
 Прибыль - {settings['profit_money']} рублей
 Минимальная сумма для ставки - {settings['min_bet']} рублей
-Максимальная сумма для ставки - {settings['max_bet']} рублей
 Комиссия для вывода - {settings['jackpot_comission']} рублей
 Перерыв между играми - {settings['crash_timer']} секунд                       
                          ''', reply_markup=create_buttons_for_detailed_stats().as_markup())
@@ -75,35 +173,41 @@ async def handle_detailed_stats(query:types.CallbackQuery):
     
     if data_about == 'bets':
         if bets_data:
-            sum_of_bet_prices = 0
-            sum_of_bonus_prices= 0
-            sum_of_won = 0
-            sum_of_won_for_dep = 0
-            all_bets_prices = []
-            all_deposit_prices= []
+            all_dep_prices = []
+            all_bonus_prices = []
+            all_dep_wons = []
+            all_bonus_wons = []
+            all_dep_loses = []
+            all_bonus_loses = []
             for bet in bets_data:
-                sum_of_bet_prices += bet['price']
-                if bet['won']:
-                    sum_of_won += bet['won']
-                all_bets_prices.append(bet['price'])
-
-                if bet['baltype'] == 'bonus':
-                    sum_of_bonus_prices += bet['price']
-                else:
-                    all_deposit_prices.append(bet['price'])
+                if bet['baltype'] == 'deposit':
+                    all_dep_prices.append(bet['price'])
                     if bet['won']:
-                        sum_of_won_for_dep += bet['won']
-
+                        all_dep_wons.append(bet['won'])
+                    else:
+                        all_dep_loses.append(bet['won'])
+                else:
+                    all_bonus_prices.append(bet['price'])
+                    if bet['won']:
+                        all_bonus_wons.append(bet['won'])
+                    else:
+                        all_bonus_loses.append(bet['won'])
             await query.message.answer(f'''
-Информация о ставках:
-Общее количество ставок: {len(bets_data)}
-Общая сумма ставок (депозитный баланс+бонусный) - {sum(all_bets_prices)}
-Общая сумма бонусных ставок - {sum_of_bonus_prices}
-Общая сумма депозитных ставок - {sum(all_deposit_prices)}
-Общая сумма выигрышей у юзеров (депозитный баланс+бонусный) - {sum_of_won}
-Сумма выигрыши (только депозитные балансы) - {sum_of_won_for_dep}
-Максимальная ставка - {max(all_bets_prices)}
-Максимальная депозитная ставка - {max(all_deposit_prices)}
+
+Сумма на которую люди наставили ставок (депы+бонусы) = {sum(all_dep_prices) + sum(all_bonus_prices)}
+
+Общая сумма ставок с деп баланса =  {sum(all_dep_prices) }
+Сумма выигрышей с деп баланса = {sum(all_dep_wons)}
+Сумма проигрышей с деп баланса = {sum(all_dep_loses)}
+Самый большой выигрыш (деп баланс) = {max(all_dep_wons)}
+Самый большой проигрыш (деп баланс) = {max(all_dep_loses)}
+
+
+Общая сумма ставок с бонус баланса =  {sum(all_bonus_prices) }
+Сумма выигрышей с бонус баланса = {sum(all_bonus_wons)}
+Сумма проигрышей (бонус баланс) = {sum(all_bonus_loses)}
+Самый большой выигрыш (бонус баланс) = {max(all_bonus_wons)}
+Самый большой проигрыш (бонус баланс) = {max(all_bonus_loses)}
 ''')
         else:
             await query.message.answer('К сожалению пользователи пока не делали никаких ставок')
@@ -144,9 +248,12 @@ async def handle_detailed_stats(query:types.CallbackQuery):
 Общее количество юзеров - {len(users_data)}
 Общая сумма на дпозитных балансах у юзеров - {sum(all_deposit_balances)}
 Общая сумма на бонусных балансах у юзеров - {sum(all_bonus_balances)}
+
 Самая большая сумма депозитного баланса - {max(all_deposit_balances)}
 Самая большая сумма бонусного баланса - {max(all_bonus_balances)}
+
 Общее количество проигранных денег (для юзеров) - {sum(total_amount_of_money_losed)}
+
 Самая большая проигранная сумма - {max(total_amount_of_money_losed)}
 Общее количество выигранных денег (для юзеров) - {sum(total_amount_of_money_won)}
 Самый большой выигрыш - {max(total_amount_of_money_won)}
