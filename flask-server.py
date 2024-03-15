@@ -134,11 +134,11 @@ def handle_message():
 }
                     return{"user":attributes_dict, 'payments':payment_attributes_dict}
                     return
-                print({"user":attributes_dict})
+                
                 return{"user":attributes_dict}
             new_user = session.merge( create_new_user(username))
             attributes_dict = {column.name: getattr(new_user, column.name) for column in User.__table__.columns}
-            print({"user":attributes_dict})
+          
             return {"user":attributes_dict}
 
 def generate_unique_uuid(session):
@@ -197,7 +197,7 @@ def new_bet_handler(data:dict):
             user_id = data['user_id']
             bet_in_usd = data['bet_in_usd']
             baltype = data['baltype']
-            print(baltype, 882)
+ 
 
             game = session.query(Crash).filter(Crash.id == game_id).first()
             user = session.query(User).filter(User.id == user_id).first()
@@ -276,18 +276,18 @@ def pickupwinning_handler(data):
                 multiplier_at_the_moment = current_multiplier
                 win = bet.price * multiplier_at_the_moment
                 if bet.baltype == 'deposit':
-                    current_game.profit -= win
+                    current_game.profit -= win-bet.price
                     user.deposit_balance += win
                  
                     user.total_amount_of_money_won += win
-                    settings.profit_money -= win
+                    settings.profit_money -= win-bet.price
                 else:
                     user.bonus_balance += win
                 user.number_of_wins += 1
                 
                 
                 bet.status = 2
-                bet.won += win
+                bet.won += win-bet.price
                 attributes_dict = {column.name: getattr(user, column.name) for column in User.__table__.columns if column.name != 'created_at'}
                 socketio.emit("you_got_new_winning", {"amount":win, "multiplier_at_the_moment": multiplier_at_the_moment, "user":attributes_dict , "baltype":bet.baltype}, room=client_sid)
 
@@ -297,7 +297,7 @@ def pickupwinning_handler(data):
 @socketio.on('get_previous_xes')
 def return_previous_xes():
     client_sid = request.sid
-    previous_games =  session.query(Crash).filter(Crash.status == 2).all() 
+    previous_games =  session.query(Crash).filter(Crash.status == 2).order_by(Crash.id.desc()).all() 
     previous_xes = []
     if len(previous_games) >= 20:
         
@@ -344,8 +344,10 @@ def check_and_execute():
     active_connections = connection_pool.checkedout()
 
     with SessionFactory() as session_for_thread:
+        
         with session_for_thread.begin():
-   
+            settings = session_for_thread.query(Settings).first()
+            print(settings.profit_money)
             games_that_have_not_begin_yet = session_for_thread.query(Crash).filter(Crash.status == 0).all()
             games_that_in_process = session_for_thread.query(Crash).filter(Crash.status == 1).all()
 
@@ -378,8 +380,24 @@ def check_and_execute():
               
                         random_num = random.random()
                         if random_num > 0.3:
-                         
-                            bet = new_bet_create(1, game.id, random.randint(1, 10),status=0,fake=0,baltype='deposit') 
+                            random_user = session_for_thread.query(User).filter(User.id == random.randint(1,10)).first()
+                            if not session_for_thread.query(CrashBets).filter(CrashBets.round_id == game.id).filter(CrashBets.user_id == random_user.id).first():
+                                last_bet =  session_for_thread.query(CrashBets).filter(CrashBets.user_id == random_user.id).order_by(CrashBets.round_id.desc()).first()
+                                random_bet = random.randint(10, 100)
+                                if last_bet:
+                                    if not last_bet.won:
+                                        if 2 * last_bet.price <= random_user.deposit_balance:
+                                            random_bet = 2 * last_bet.price
+                                        else:
+                                            if random_user.deposit_balance >= 1:
+                                                import math
+                                                random_bet = math.floor(random_user.deposit_balance)
+                                    else: 
+                                        random_bet = last_bet.price
+                                if random_user.deposit_balance >= 1 and random_bet >= 1:
+                                    random_user.deposit_balance -= random_bet
+                                    session_for_thread.commit()
+                                    bet = new_bet_create(random_user.id, game.id, random_bet,status=0,fake=0,baltype='deposit') 
 
                 bets_to_send = []
                 num_elements = random.randint(0, 2)
@@ -451,12 +469,15 @@ def test_pick(current_multiplier, game):
                             bets_all = session_for_tests.query(CrashBets).filter(CrashBets.round_id == game.id).filter(CrashBets.status == 0).all()
                             if bets_all:
                                 random_bet = random.choice(bets_all)
-                                if random_bet.user_id == 1:
+                                if 1 <= random_bet.user_id <= 10:
                                     win = random_bet.price * current_multiplier
-                                    random_bet.won = win
+                                    random_bet.won = win - random_bet.price
                                     random_bet.status =2 
-                                    settings.profit_money -= win 
-                                    game.profit -= win
+                                    settings.profit_money -= win - random_bet.price 
+                                    game.profit -= win - random_bet.price
+                                    user = session_for_tests.query(User).filter(User.id == random_bet.user_id).first()
+                                    user.deposit_balance += win
+
         except Exception as ex:
                     'ok'
         finally:
@@ -483,7 +504,7 @@ def broadcast_current_game_handler(session):
                         
                 current_multiplier = list_of_multipliers[i]
                 chance = random.random()
-                if chance >= 0.05:
+                if chance >= 0.5 and  (1.1<=current_multiplier<=3.5):
                     test_pick(current_multiplier=current_multiplier, game=game)
                 socketio.emit('current_game', {'game_id':game.id, "current_multiplier":list_of_multipliers[i]})
                 if 10>current_multiplier > 4:
@@ -549,9 +570,9 @@ def new_bet_create(user_id, round_id, price, status, fake, baltype):
     with SessionFactory() as session:
         with session.begin():
             settings = session.query(Settings).first()
-            settings.profit_money += price
+            
             game = session.query(Crash).filter(Crash.id == round_id).first()
-            game.profit += price
+      
             new_bet = CrashBets(user_id = user_id, round_id = round_id, price = price,  status = 0, fake = 0, baltype = baltype )
             session.add(new_bet)
     return new_bet
@@ -648,7 +669,7 @@ if __name__ == '__main__':
             for sett in all_setts:
                 session.delete(sett)
             games = session.query(Crash).all()
-            settings = Settings(bank_mines=150000)
+            settings = Settings(bank_mines=1000)
             session.add(settings)
             usersss = session.query(User).all()
             if usersss:
@@ -661,7 +682,8 @@ if __name__ == '__main__':
             if bets:
                 for bet in bets:
                     session.delete(bet)
-    new_user = session.merge( create_new_user('username'))
+    for i in range(10):
+        new_user = session.merge( create_new_user('username'))
     thread1 = threading.Thread(target=func_for_thread)
     thread1.start()
     socketio.run(app, debug=False,allow_unsafe_werkzeug=True, host='0.0.0.0', port=5000)
