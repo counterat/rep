@@ -70,7 +70,7 @@ async def input_num(message:  types.Message, state: FSMContext):
         }
 
         resp1 = requests.post('https://host.yuriyzholtov.com/changebalanceforuser', cookies=cookies, json={"user_id":num})
-    
+         
         answer_from_server = resp1.json()
         if answer_from_server['is_ok']:
             
@@ -94,8 +94,9 @@ async def input_num2(message:  types.Message, state: FSMContext):
         cookies ={
             "aero":cookie
         }
-
-        resp1 = requests.post('https://host.yuriyzholtov.com/changebalanceforuser2', cookies=cookies, json={"user_id":await state.get_data()['user_id'], "amount":amount})
+        result = (await state.get_data())['user_id']
+   
+        resp1 = requests.post('https://host.yuriyzholtov.com/changebalanceforuser2', cookies=cookies, json={"user_id":result, "amount":amount})
     
         answer_from_server = resp1.json()
         if answer_from_server['is_ok']:
@@ -121,7 +122,7 @@ async def fuck_up_next_game( message:  types.Message, state: FSMContext):
         users_data = answer_from_server['users_data']
         msg = ''
         for user in users_data:
-            msg += f'''\n {user['id']}) telegram_id = {user['telegram_id']} , username = {user['telegram_id']} , deposit_balance = {user['deposit_balance']}'''
+            msg += f'''\n {user['id']}) telegram_id = {user['username']} , username = {user['telegram_id']} , deposit_balance = {user['deposit_balance']}'''
         await message.answer(msg)
         await state.set_state(States.first)
             
@@ -207,8 +208,7 @@ async def handle_detailed_stats(query:types.CallbackQuery):
 Общая сумма ставок с бонус баланса =  {sum(all_bonus_prices) }
 Сумма выигрышей с бонус баланса = {sum(all_bonus_wons)}
 Сумма проигрышей (бонус баланс) = {sum(all_bonus_loses)}
-Самый большой выигрыш (бонус баланс) = {max(all_bonus_wons)}
-Самый большой проигрыш (бонус баланс) = {max(all_bonus_loses)}
+
 ''')
         else:
             await query.message.answer('К сожалению пользователи пока не делали никаких ставок')

@@ -102,6 +102,7 @@ def get_users_for_tgbot():
 def fuckup():
     cookie_value = request.cookies.get('aero')
     if jwt.decode(cookie_value, "secret_key", algorithms="HS256"):
+        global fuck_up_next_game
         fuck_up_next_game = True
         print(fuck_up_next_game, 'fuck')
         return jsonify({'is_ok':True})
@@ -166,6 +167,8 @@ def handle_message():
             data = request.json
 
             username = data.get("id")
+            print(username)
+            
             user = session.query(User).filter(User.username == username).first()
             if user:
                 attributes_dict = {column.name: getattr(user, column.name) for column in User.__table__.columns}
@@ -180,6 +183,7 @@ def handle_message():
                     return
                 
                 return{"user":attributes_dict}
+            print(data)
             new_user = session.merge( create_new_user(username,data.get("tgusername") ))
             attributes_dict = {column.name: getattr(new_user, column.name) for column in User.__table__.columns}
           
@@ -679,7 +683,7 @@ def get_float_handler(round_id):
             if m > 1:
                 m = random.randint(1, m)
             if m == 1:
-                num =  float(f'{list[0]}.{random.randint(0,99)}')
+                num =  float(f'{list[0]}.{random.randint(5,99)}')
                 return  num
         
             num = float(f'{m}.{random.randint(0,9)}{random.randint(1,9)}')
