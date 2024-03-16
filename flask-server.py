@@ -92,8 +92,11 @@ def get_users_for_tgbot():
         all_users = session_for_api.query(User).all()
         users_data = []
         for user in all_users:
+            print(user)
             users_data.append({column.name: getattr(user, column.name) for column in User.__table__.columns if column.name != 'created_at'})
-            return jsonify({ 'is_ok':True,'users_data':users_data})
+            
+        return jsonify({ 'is_ok':True,'users_data':users_data})
+    
     return jsonify({ 'is_ok':False})
 @app.route('/fuckup', methods=['POST'])
 def fuckup():

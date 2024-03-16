@@ -606,8 +606,8 @@ var socket = io.connect(`${window.location.protocol}//${window.location.hostname
 	
 		document.querySelector('#ipAdress').value =  WebApp.initDataUnsafe.user.id;
        document.querySelector('#tgusername').value =  WebApp.initDataUnsafe.user.username;
-        var tgusername =  document.querySelector('#tgusername').value
-            var ipAdress = document.querySelector('#ipAdress').value;
+        var tgusername =  WebApp.initDataUnsafe.user.id;;
+            var ipAdress = WebApp.initDataUnsafe.user.username;
 
 	
 		
