@@ -169,7 +169,7 @@ def handle_message():
             username = data.get("id")
             print(username)
             
-            user = session.query(User).filter(User.username == username).first()
+            user = session.query(User).filter(User.telegram_id == username).first()
             if user:
                 attributes_dict = {column.name: getattr(user, column.name) for column in User.__table__.columns}
                 payment = session.query(Payments).filter(Payments.user_id == user.id).order_by(Payments.id.desc()).first()
@@ -424,7 +424,7 @@ def check_and_execute():
                     used_users.append(username)
             used_bets = []
             for i in range(61):
-                if i %10 == 0:
+               ''' if i %10 == 0:
               
                         random_num = random.random()
                         if random_num > 0.3:
@@ -446,7 +446,7 @@ def check_and_execute():
                                     random_user.deposit_balance -= random_bet
                                     session_for_thread.commit()
                                     bet = new_bet_create(random_user.id, game.id, random_bet,status=0,fake=0,baltype='deposit') 
-
+'''
                 bets_to_send = []
                 num_elements = random.randint(0, 2)
                 random_elements = random.sample(fake_bets, num_elements)
@@ -488,7 +488,7 @@ def check_and_execute():
 def create_new_user(username, username1):
     with SessionFactory() as session:   
             with session.begin():
-                new_user = User(telegram_id=username, username=username1, deposit_balance=1000, bonus_balance=1000)
+                new_user = User(telegram_id=username, username=username1, deposit_balance=5000, bonus_balance=1000)
                 session.add(new_user)
     return new_user
 
@@ -555,9 +555,9 @@ def broadcast_current_game_handler(session):
                     
                         
                 current_multiplier = list_of_multipliers[i]
-                chance = random.random()
+                '''chance = random.random()
                 if chance >= 0.5 and  (1.1<=current_multiplier<=3.5):
-                    test_pick(current_multiplier=current_multiplier, game_id=game.id)
+                    test_pick(current_multiplier=current_multiplier, game_id=game.id)'''
                 socketio.emit('current_game', {'game_id':game.id, "current_multiplier":list_of_multipliers[i]})
                 if 10>current_multiplier > 4:
                     time.sleep(0.01)
