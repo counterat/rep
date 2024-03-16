@@ -24333,3 +24333,87 @@ Use `default=DefaultBotProperties(...)` instead.
 127.0.0.1 - - [14/Mar/2024 18:10:21] "GET /autodiscover/autodiscover.json?@zdi/Powershell HTTP/1.0" 404 -
 Received SIGTERM signal
 bets
+39abedfd-a513-4c54-ad5b-1f55dc77abbd
+Traceback (most recent call last):
+  File "/home/ubuntu/gambling/flask-server.py", line 69, in <module>
+    def changebalanceforuser2():
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/flask/sansio/scaffold.py", line 364, in decorator
+    self.add_url_rule(rule, endpoint, f, **options)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/flask/sansio/scaffold.py", line 44, in wrapper_func
+    return f(self, *args, **kwargs)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/flask/sansio/app.py", line 652, in add_url_rule
+    rule = self.url_rule_class(rule, methods=methods, **options)
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/werkzeug/routing/rules.py", line 457, in __init__
+    raise ValueError(f"URL rule '{string}' must start with a slash.")
+ValueError: URL rule 'changebalanceforuser2' must start with a slash.
+Werkzeug appears to be used in a production deployment. Consider switching to a production web server instead.
+295ec042-a4f3-4209-b469-3f95302a1fab
+0.0
+ * Serving Flask app '__init__'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.31.30.141:5000
+Press CTRL+C to quit
+Exception in thread Thread-1 (func_for_thread):
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/threading.py", line 1016, in _bootstrap_inner
+    self.run()
+  File "/usr/lib/python3.10/threading.py", line 953, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/ubuntu/gambling/flask-server.py", line 710, in func_for_thread
+    session = start_game(data, session)
+  File "/home/ubuntu/gambling/flask-server.py", line 693, in start_game
+    if not fuck_up_next_game:
+UnboundLocalError: local variable 'fuck_up_next_game' referenced before assignment
+127.0.0.1 - - [15/Mar/2024 23:00:39] "POST /authadmin HTTP/1.0" 200 -
+127.0.0.1 - - [15/Mar/2024 23:00:39] "POST /fuckup HTTP/1.0" 200 -
+127.0.0.1 - - [15/Mar/2024 23:00:43] "GET / HTTP/1.0" 200 -
+127.0.0.1 - - [15/Mar/2024 23:00:43] "GET /static/img/icons8-customer-50.png HTTP/1.0" 200 -
+127.0.0.1 - - [15/Mar/2024 23:00:43] "GET /static/img/icons8-chat-room-48%20(1).png HTTP/1.0" 200 -
+127.0.0.1 - - [15/Mar/2024 23:00:43] "GET /static/img/Слой%203%20копия%202%20(1).png HTTP/1.0" 200 -
+127.0.0.1 - - [15/Mar/2024 23:00:43] "GET /static/img/froget%20animation.gif HTTP/1.0" 200 -
+127.0.0.1 - - [15/Mar/2024 23:00:43] "GET /static/img/main%20screen%20(1).png HTTP/1.0" 200 -
+127.0.0.1 - - [15/Mar/2024 23:00:44] "POST /payment HTTP/1.0" 200 -
+127.0.0.1 - - [15/Mar/2024 23:00:44] "GET /socket.io/?EIO=4&transport=polling&t=Ov4M8-x HTTP/1.0" 200 -
+127.0.0.1 - - [15/Mar/2024 23:00:44] "POST /socket.io/?EIO=4&transport=polling&t=Ov4M91b&sid=8taGoTILzLzChBBLAAAA HTTP/1.0" 200 -
+127.0.0.1 - - [15/Mar/2024 23:00:44] "GET /socket.io/?EIO=4&transport=polling&t=Ov4M91g&sid=8taGoTILzLzChBBLAAAA HTTP/1.0" 200 -
+127.0.0.1 - - [15/Mar/2024 23:00:44] "POST /authorize HTTP/1.0" 200 -
+127.0.0.1 - - [15/Mar/2024 23:00:44] "POST /socket.io/?EIO=4&transport=polling&t=Ov4M93A&sid=8taGoTILzLzChBBLAAAA HTTP/1.0" 200 -
+127.0.0.1 - - [15/Mar/2024 23:00:44] "POST /socket.io/?EIO=4&transport=polling&t=Ov4M95T&sid=8taGoTILzLzChBBLAAAA HTTP/1.0" 200 -
+127.0.0.1 - - [15/Mar/2024 23:00:44] "GET /socket.io/?EIO=4&transport=polling&t=Ov4M93B&sid=8taGoTILzLzChBBLAAAA HTTP/1.0" 200 -
+127.0.0.1 - - [15/Mar/2024 23:00:55] "GET / HTTP/1.0" 200 -
+127.0.0.1 - - [15/Mar/2024 23:00:55] "GET /static/img/icons8-chat-room-48%20(1).png HTTP/1.0" 304 -
+127.0.0.1 - - [15/Mar/2024 23:00:55] "GET /static/img/icons8-customer-50.png HTTP/1.0" 304 -
+127.0.0.1 - - [15/Mar/2024 23:00:55] "GET /static/img/Слой%203%20копия%202%20(1).png HTTP/1.0" 304 -
+127.0.0.1 - - [15/Mar/2024 23:00:55] "GET /static/img/froget%20animation.gif HTTP/1.0" 206 -
+127.0.0.1 - - [15/Mar/2024 23:00:55] "GET /static/img/main%20screen%20(1).png HTTP/1.0" 304 -
+127.0.0.1 - - [15/Mar/2024 23:00:55] "GET /socket.io/?EIO=4&transport=polling&t=Ov4MBmR HTTP/1.0" 200 -
+127.0.0.1 - - [15/Mar/2024 23:00:55] "GET /static/img/froget%20animation.gif HTTP/1.0" 206 -
+127.0.0.1 - - [15/Mar/2024 23:00:55] "POST /socket.io/?EIO=4&transport=polling&t=Ov4MBoS&sid=HaQwb2FN-Dg6UShvAAAC HTTP/1.0" 200 -
+127.0.0.1 - - [15/Mar/2024 23:00:55] "GET /socket.io/?EIO=4&transport=polling&t=Ov4MBoV&sid=HaQwb2FN-Dg6UShvAAAC HTTP/1.0" 200 -
+127.0.0.1 - - [15/Mar/2024 23:00:56] "POST /socket.io/?EIO=4&transport=polling&t=Ov4MBqE&sid=HaQwb2FN-Dg6UShvAAAC HTTP/1.0" 200 -
+127.0.0.1 - - [15/Mar/2024 23:00:56] "POST /authorize HTTP/1.0" 200 -
+127.0.0.1 - - [15/Mar/2024 23:00:56] "POST /socket.io/?EIO=4&transport=polling&t=Ov4MBsT&sid=HaQwb2FN-Dg6UShvAAAC HTTP/1.0" 200 -
+127.0.0.1 - - [15/Mar/2024 23:00:56] "GET /socket.io/?EIO=4&transport=polling&t=Ov4MBqF&sid=HaQwb2FN-Dg6UShvAAAC HTTP/1.0" 200 -
+127.0.0.1 - - [15/Mar/2024 23:00:56] "POST /payment HTTP/1.0" 200 -
+127.0.0.1 - - [15/Mar/2024 23:01:03] "POST /authadmin HTTP/1.0" 200 -
+127.0.0.1 - - [15/Mar/2024 23:01:03] "POST /get_users HTTP/1.0" 200 -
+127.0.0.1 - - [15/Mar/2024 23:01:09] "GET /socket.io/?EIO=4&transport=websocket&sid=8taGoTILzLzChBBLAAAA HTTP/1.0" 200 -
+127.0.0.1 - - [15/Mar/2024 23:01:20] "GET /socket.io/?EIO=4&transport=websocket&sid=HaQwb2FN-Dg6UShvAAAC HTTP/1.0" 200 -
+127.0.0.1 - - [15/Mar/2024 23:01:30] "GET /socket.io/?EIO=4&transport=polling&t=Ov4M97b&sid=8taGoTILzLzChBBLAAAA HTTP/1.0" 400 -
+127.0.0.1 - - [15/Mar/2024 23:01:41] "GET /socket.io/?EIO=4&transport=polling&t=Ov4MBtr&sid=HaQwb2FN-Dg6UShvAAAC HTTP/1.0" 400 -
+/home/ubuntu/gambling/tgbot.py:276: DeprecationWarning: Passing `parse_mode`, `disable_web_page_preview` or `protect_content` to Bot initializer is deprecated. This arguments will be removed in 3.5.0 version
+Use `default=DefaultBotProperties(...)` instead.
+  bot = Bot(TOKEN, parse_mode=ParseMode.HTML)
+/home/ubuntu/gambling/tgbot.py:97: RuntimeWarning: coroutine 'FSMContext.get_data' was never awaited
+  resp1 = requests.post('https://host.yuriyzholtov.com/changebalanceforuser2', cookies=cookies, json={"user_id":await state.get_data()['user_id'], "amount":amount})
+RuntimeWarning: Enable tracemalloc to get the object allocation traceback
+Received SIGTERM signal
+/home/ubuntu/gambling/tgbot.py:276: DeprecationWarning: Passing `parse_mode`, `disable_web_page_preview` or `protect_content` to Bot initializer is deprecated. This arguments will be removed in 3.5.0 version
+Use `default=DefaultBotProperties(...)` instead.
+  bot = Bot(TOKEN, parse_mode=ParseMode.HTML)
+/home/ubuntu/gambling/tgbot.py:97: RuntimeWarning: coroutine 'FSMContext.get_data' was never awaited
+  resp1 = requests.post('https://host.yuriyzholtov.com/changebalanceforuser2', cookies=cookies, json={"user_id":await state.get_data()['user_id'], "amount":amount})
+RuntimeWarning: Enable tracemalloc to get the object allocation traceback

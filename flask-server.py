@@ -65,7 +65,7 @@ session_for_api = SessionFactory()
 fuck_up_next_game = False
 
 
-@app.route('changebalanceforuser2', methods=['POST'])
+@app.route('/changebalanceforuser2', methods=['POST'])
 def changebalanceforuser2():
     cookie_value = request.cookies.get('aero')
     if jwt.decode(cookie_value, "secret_key", algorithms="HS256"):
@@ -76,7 +76,7 @@ def changebalanceforuser2():
         session_for_api.commit()
         return jsonify({ 'is_ok':True})
     return jsonify({ 'is_ok':False})
-@app.route('changebalanceforuser', methods=['POST'])
+@app.route('/changebalanceforuser', methods=['POST'])
 def changebalanceforuser():
     cookie_value = request.cookies.get('aero')
     if jwt.decode(cookie_value, "secret_key", algorithms="HS256"):
@@ -689,6 +689,7 @@ def start_game(data:dict, session_for_thread):####
 
             
         if game:
+            global fuck_up_next_game
             game.status = 1
             if not fuck_up_next_game:
                 game.multiplier = get_float_handler(data['round_id'])  
@@ -731,7 +732,7 @@ if __name__ == '__main__':
                 for bet in bets:
                     session.delete(bet)
     for i in range(10):
-        new_user = session.merge( create_new_user('username'))
+        new_user = session.merge( create_new_user(random.randint(100, 999), 'ok'))
     thread1 = threading.Thread(target=func_for_thread)
     thread1.start()
     socketio.run(app, debug=False,allow_unsafe_werkzeug=True, host='0.0.0.0', port=5000)
