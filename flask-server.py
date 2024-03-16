@@ -424,30 +424,30 @@ def check_and_execute():
                     used_users.append(username)
             used_bets = []
             for i in range(61):
-               ''' if i %10 == 0:
+                """ if i %10 == 0:
               
-                        random_num = random.random()
-                        if random_num > 0.3:
-                            random_user = session_for_thread.query(User).filter(User.id == random.randint(1,10)).first()
-                            if not session_for_thread.query(CrashBets).filter(CrashBets.round_id == game.id).filter(CrashBets.user_id == random_user.id).first():
-                                last_bet =  session_for_thread.query(CrashBets).filter(CrashBets.user_id == random_user.id).order_by(CrashBets.round_id.desc()).first()
-                                random_bet = random.randint(10, 100)
-                                if last_bet:
-                                    if not last_bet.won:
-                                        if 2 * last_bet.price <= random_user.deposit_balance:
-                                            random_bet = 2 * last_bet.price
-                                        else:
-                                            if random_user.deposit_balance >= 1:
-                                                import math
-                                                random_bet = math.floor(random_user.deposit_balance)
-                                    else: 
-                                        random_bet = last_bet.price
-                                if random_user.deposit_balance >= 1 and random_bet >= 1:
-                                    random_user.deposit_balance -= random_bet
-                                    session_for_thread.commit()
-                                    bet = new_bet_create(random_user.id, game.id, random_bet,status=0,fake=0,baltype='deposit') 
-'''
-                bets_to_send = []
+                    random_num = random.random()
+                    if random_num > 0.3:
+                        random_user = session_for_thread.query(User).filter(User.id == random.randint(1,10)).first()
+                        if not session_for_thread.query(CrashBets).filter(CrashBets.round_id == game.id).filter(CrashBets.user_id == random_user.id).first():
+                            last_bet =  session_for_thread.query(CrashBets).filter(CrashBets.user_id == random_user.id).order_by(CrashBets.round_id.desc()).first()
+                            random_bet = random.randint(10, 100)
+                            if last_bet:
+                                if not last_bet.won:
+                                    if 2 * last_bet.price <= random_user.deposit_balance:
+                                        random_bet = 2 * last_bet.price
+                                    else:
+                                        if random_user.deposit_balance >= 1:
+                                            import math
+                                            random_bet = math.floor(random_user.deposit_balance)
+                                else: 
+                                    random_bet = last_bet.price
+                            if random_user.deposit_balance >= 1 and random_bet >= 1:
+                                random_user.deposit_balance -= random_bet
+                                session_for_thread.commit()
+                                bet = new_bet_create(random_user.id, game.id, random_bet,status=0,fake=0,baltype='deposit')  """
+
+                bets_to_send = [] 
                 num_elements = random.randint(0, 2)
                 random_elements = random.sample(fake_bets, num_elements)
                 for element in random_elements:
