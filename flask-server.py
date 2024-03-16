@@ -684,13 +684,13 @@ def get_float_handler(round_id):
 
 
 multipliers = []
-def start_game(data:dict, session_for_thread, fuck_up_next_game):####
+def start_game(data:dict, session_for_thread, fuck_up_next_game=False):####
     with session_for_thread.begin():
         game = session_for_thread.query(Crash).filter(Crash.id == data['round_id']).first()
 
             
         if game:
-            global fuck_up_next_game
+            
             print(fuck_up_next_game, 'fuck')
             game.status = 1
             if not fuck_up_next_game:
