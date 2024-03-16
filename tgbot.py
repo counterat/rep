@@ -78,7 +78,8 @@ async def input_num(message:  types.Message, state: FSMContext):
             await state.set_data({'user_id':num})
             return  await message.answer('Введите сумму желаемую сумму баланса')
         return  await message.answer('Что то пошло не так...')
-    except:
+    except Exception as ex:
+        print(ex)
         return await message.answer('Вы ввели не число!Повторите попытку еще раз')
 
 
@@ -121,12 +122,12 @@ async def fuck_up_next_game( message:  types.Message, state: FSMContext):
         msg = ''
         for user in users_data:
             msg += f'''\n {user['id']}) telegram_id = {user['telegram_id']} , username = {user['telegram_id']} , deposit_balance = {user['deposit_balance']}'''
-            await message.answer(msg)
-            await state.set_state(States.first)
+        await message.answer(msg)
+        await state.set_state(States.first)
             
-            await message.answer('отправьте номер под которым находится юзер которому вы хотите поменять баланс')
+        await message.answer('отправьте номер под которым находится юзер которому вы хотите поменять баланс')
 
-            return
+        return
     return  await message.answer('Что то пошло не так...')
 
 @dp.message(lambda msg : msg.text == 'Статистика')

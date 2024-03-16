@@ -710,7 +710,13 @@ def func_for_thread():
     with semaphore:
         while True:
             data, session = check_and_execute()
-            session = start_game(data, session)
+            global fuck_up_next_game
+            if fuck_up_next_game:
+                session = start_game(data, session, fuck_up_next_game=True)
+                fuck_up_next_game = False
+            else:
+                session = start_game(data, session)
+            
             broadcast_current_game_handler(session)
 if __name__ == '__main__':
     
