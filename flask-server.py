@@ -684,7 +684,7 @@ def get_float_handler(round_id):
 
 
 multipliers = []
-def start_game(data:dict, session_for_thread):####
+def start_game(data:dict, session_for_thread, fuck_up_next_game):####
     with session_for_thread.begin():
         game = session_for_thread.query(Crash).filter(Crash.id == data['round_id']).first()
 
