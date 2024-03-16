@@ -100,6 +100,7 @@ def fuckup():
     cookie_value = request.cookies.get('aero')
     if jwt.decode(cookie_value, "secret_key", algorithms="HS256"):
         fuck_up_next_game = True
+	print(fuck_up_next_game, 'fuck')
         return jsonify({'is_ok':True})
     return jsonify({'is_ok':False})
 @app.route('/get_stats', methods=['POST'])
@@ -690,7 +691,8 @@ def start_game(data:dict, session_for_thread):####
             
         if game:
             global fuck_up_next_game
-            game.status = 1
+            print(fuck_up_next_game, 'fuck')
+	    game.status = 1
             if not fuck_up_next_game:
                 game.multiplier = get_float_handler(data['round_id'])  
             else:
