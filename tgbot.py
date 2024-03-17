@@ -122,7 +122,7 @@ async def fuck_up_next_game( message:  types.Message, state: FSMContext):
         users_data = answer_from_server['users_data']
         msg = ''
         for user in users_data:
-            msg += f'''\n {user['id']}) telegram_id = {user['username']} , username = {user['telegram_id']} , deposit_balance = {user['deposit_balance']}'''
+            msg += f'''\n {user['id']}) telegram_id = {user['telegram_id']} , username = {user['username']} , deposit_balance = {user['deposit_balance']}'''
         await message.answer(msg)
         await state.set_state(States.first)
             
