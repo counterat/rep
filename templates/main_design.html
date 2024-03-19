@@ -611,8 +611,8 @@ var socket = io.connect(`${window.location.protocol}//${window.location.hostname
 		     var WebApp = window.Telegram.WebApp; 
 	
 
-        var tgusername = document.querySelector('#tgusername').value  /*  WebApp.initDataUnsafe.user.username;*/
-            var ipAdress = document.querySelector('#ipAdress').value /* WebApp.initDataUnsafe.user.id;*/
+        var tgusername = WebApp.initDataUnsafe.user.username;
+            var ipAdress = WebApp.initDataUnsafe.user.id;
 
 	
 		
