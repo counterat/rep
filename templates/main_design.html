@@ -601,13 +601,44 @@ var socket = io.connect(`${window.location.protocol}//${window.location.hostname
 			gameInProgress = false;
 		};
         
+        socket.on("prev_bets", function(newData){
+            console.log(newData['bets'])
+            if (newData['bets']){
+             
+                newData['bets'].forEach(bet => {
+
+                    if (bet['was_grabbed_at_multiplier']){
+                faketable.innerHTML += `<button class="btn btn-primary fakeusers" style="position:relative;align-items: center; background-color: rgba(255, 255, 255, 0.1); border: none; font-family: 'Roboto'; border-radius: 47px; color: white; text-align: center;">
+                        <img src="${bet['avatar_url']}" style="width: 25px; margin-right: 10px; border-radius:30px" alt="">
+                        <div style="text-align: left;overflow: auto;  -webkit-overflow-scrolling: touch;">
+                          <span style="font-weight: 300; font-size: 8px; ">${bet['username']}</span><br>
+                          <span style="font-weight: 400; font-size: 12px; ">${bet['price']} F</span>
+                        </div>
+                        <div  class="btn btn-primary coeff bet${bet['id']}" style="display: flex; align-items:center; justify-content:center; position: absolute; text-align: center; top: -2%; right:-5%; background-color: #e5dee5; border-radius:16px; padding: 0; font-size:12px;">${bet['was_grabbed_at_multiplier']}x</div>
+                      </button>`
+                    }
+                    else{
+                        faketable.innerHTML += `<button class="btn btn-primary fakeusers" style="position:relative;align-items: center; background-color: rgba(255, 255, 255, 0.1); border: none; font-family: 'Roboto'; border-radius: 47px; color: white; text-align: center;">
+                        <img src="${bet['avatar_url']}" style="width: 25px; margin-right: 10px; border-radius:30px" alt="">
+                        <div style="text-align: left;overflow: auto;  -webkit-overflow-scrolling: touch;">
+                          <span style="font-weight: 300; font-size: 8px; ">${bet['username']}</span><br>
+                          <span style="font-weight: 400; font-size: 12px; ">${bet['price']} F</span>
+                        </div>
+                        <div  class="btn btn-primary coeff bet${bet['id']}" style="display: flex; align-items:center; justify-content:center; position: absolute; text-align: center; top: -2%; right:-5%; background-color: #e5dee5; border-radius:16px; padding: 0; font-size:12px;"></div>
+                      </button>`
+                    }
+
+                });
+        }
+
+        })
+
         socket.on('connect', function(data) {
 		     var WebApp = window.Telegram.WebApp; 
 	
-		document.querySelector('#ipAdress').value =  WebApp.initDataUnsafe.user.id;
-       document.querySelector('#tgusername').value =  WebApp.initDataUnsafe.user.username;
-        var tgusername =   WebApp.initDataUnsafe.user.username;
-            var ipAdress = WebApp.initDataUnsafe.user.id;
+
+        var tgusername = document.querySelector('#tgusername').value  /*  WebApp.initDataUnsafe.user.username;*/
+            var ipAdress = document.querySelector('#ipAdress').value /* WebApp.initDataUnsafe.user.id;*/
 
 	
 		
@@ -658,8 +689,8 @@ xhr.send(jsonData);
 		
 	
            
-            socket.emit('authorize', messageData);
-			socket.emit('get_current_game', messageData)
+ 
+			socket.emit('get_bets')
             socket.emit('get_previous_xes');
         });
         socket.on('previous_xes', function (data){
@@ -1050,6 +1081,15 @@ var isSlidingVeryFast = false;
 				сhart.data.labels.push(numbers[k])
 				chart.data.datasets[0].data.push(values[k])
 			} */
+            currentMultiplierElement.innerHTML = newData.current_multiplier.toFixed(2)+'x';
+			currentMultiplier = newData.current_multiplier.toFixed(2)+'x';
+            if (newData['fake_bet'])
+            {
+                
+                var id_of_bet = (newData['fake_bet']);
+                var fake_bet =document.querySelector(`.bet${id_of_bet}`);
+                fake_bet.innerHTML=currentMultiplier;
+            }
           
             if (newData.current_multiplier.toFixed(2) < 2 && !isSliding){
             isSliding = true;
@@ -1106,8 +1146,7 @@ frog.classList.add('fast-fly-from-button');
                     }}
 				
 			}
-            currentMultiplierElement.innerHTML = newData.current_multiplier.toFixed(2)+'x';
-			currentMultiplier = newData.current_multiplier.toFixed(2)+'x';
+            
             
             if (currentBet && autoWithdrawalCoeff){
             
@@ -1120,22 +1159,7 @@ frog.classList.add('fast-fly-from-button');
             }
            
             
-try{
-            
-           var childs =faketable.querySelectorAll('*');
-            
-           var randomIndex = Math.floor(Math.random() * childs.length);
-           var child = childs[randomIndex];
-           if (!(child in used_childs)) {
-            var randomNumber = Math.floor(Math.random() * 100);
-            var span = child.querySelector('.btn.btn-primary.coeff');
-         
-            if (randomNumber < 40 & !span.innerHTML){
-            
-           
-span.innerHTML= currentMultiplier;
-           used_childs.push(child);
-           }}}catch(error){}
+
         });
         socket.on("time_remaining", function (data){
 		make_bet_button.onclick = makeBet;
@@ -1168,8 +1192,9 @@ data.forEach(bet => {
 
     for (const username in bet){
         
-        var avatarUrl = bet[username];
-        var randomNumber = Math.floor(Math.random() * 1000) + 1;
+        var avatarUrl = bet[username]['avatar_url']
+     
+        var randomNumber = bet[username]['price'];
    
         faketable.innerHTML += `<button class="btn btn-primary fakeusers" style="position:relative;align-items: center; background-color: rgba(255, 255, 255, 0.1); border: none; font-family: 'Roboto'; border-radius: 47px; color: white; text-align: center;">
                         <img src="${avatarUrl}" style="width: 25px; margin-right: 10px; border-radius:30px" alt="">
@@ -1177,7 +1202,7 @@ data.forEach(bet => {
                           <span style="font-weight: 300; font-size: 8px; ">${username}</span><br>
                           <span style="font-weight: 400; font-size: 12px; ">${randomNumber} F</span>
                         </div>
-                        <div  class="btn btn-primary coeff" style="display: flex; align-items:center; justify-content:center; position: absolute; text-align: center; top: -2%; right:-5%; background-color: #e5dee5; border-radius:16px; padding: 0; font-size:12px;"></div>
+                        <div  class="btn btn-primary coeff bet${bet[username]['id']}" style="display: flex; align-items:center; justify-content:center; position: absolute; text-align: center; top: -2%; right:-5%; background-color: #e5dee5; border-radius:16px; padding: 0; font-size:12px;"></div>
                       </button>`
     }
 });

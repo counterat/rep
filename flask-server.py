@@ -25,8 +25,8 @@ config_for_admin = {
     'password':"DHICvBAAS0ue"
 }
 app.register_blueprint(api_bp, url_prefix='/api')
-fake_bets = []
 
+fake_bets = []
 current_multiplier = 1
 users_and_avatars = {'Эмил': 'https://res.cloudinary.com/du73oow82/image/upload/v1707406838/ujaqwypgrispgiptrjx9.jpg', 'ДОКУМЕНТ': 'https://res.cloudinary.com/du73oow82/image/upload/v1707406839/ef7odcaabmojrofncyvk.jpg', '𝐌𝐞𝐧𝐝𝐚 𝐪𝐨𝐥𝐦𝐚𝐝𝐢 𝐝𝐢𝐥 ❤️': 'https://res.cloudinary.com/du73oow82/image/upload/v1707406840/ppqit540z9zgtonwvhbm.jpg', 'Qwerty': 'https://res.cloudinary.com/du73oow82/image/upload/v1707406842/rjpgsxltppsnduysacby.jpg', 'Рустам': 'https://res.cloudinary.com/du73oow82/image/upload/v1707406844/ohzez5sn6vkzjuxduibl.jpg', 'Gulmira': 'https://res.cloudinary.com/du73oow82/image/upload/v1707406845/wqboqod0ewjlm6sl5frg.jpg', 'Лиля': 'https://res.cloudinary.com/du73oow82/image/upload/v1707406847/vgg5lteawwm8i7jleaun.jpg', '𓄂༗࿐ Шохрухбе 𓄂༗࿐': 'https://res.cloudinary.com/du73oow82/image/upload/v1707406848/quh5u11e2xsc7pg7ptvv.jpg', 'Бахтиёр': 'https://res.cloudinary.com/du73oow82/image/upload/v1707406849/qddpautopk6py0jlv3qt.jpg', '𓃬 𖤓 ДеД 𖤓 ♚Шох♚ Ака 𓃬': 'https://res.cloudinary.com/du73oow82/image/upload/v1707406851/ogkyynvcrkne3zbzjj6d.jpg'}
 
@@ -341,6 +341,26 @@ def pickupwinning_handler(data):
 
 
 
+@socketio.on('get_bets')
+def get_bets():
+    print(fake_bets)
+    client_sid = request.sid
+    game = session.query(Crash).filter(Crash.status == 1).order_by(Crash.id.desc()).first()
+    if game:
+           
+        
+        print('VAZHNO', fake_bets,'VAZHNO')
+        bets_to_send=[]
+        if fake_bets:
+            for fake_bet in fake_bets:
+                for username in fake_bet:
+                    bet_to_send = session.query(CrashBets).filter(CrashBets.id == fake_bet[username]['id']).first()
+                    bet_to_send = {column.name: getattr(bet_to_send, column.name) for column in CrashBets.__table__.columns if column.name != 'created_at'}
+                    bet_to_send['username'] = username
+                    bet_to_send['avatar_url'] = fake_bet[username]['avatar_url']
+                    bets_to_send.append(bet_to_send)
+            socketio.emit('prev_bets', {'bets':bets_to_send})
+
 
 @socketio.on('get_previous_xes')
 def return_previous_xes():
@@ -413,15 +433,24 @@ def check_and_execute():
          
             used_users = []
             
-      
+            fake_bets.clear()
             for item in users_and_avatars.items():
                 username = item[0]
           
                         
            
                 if username not in used_users:
-                    fake_bets.append( {username:users_and_avatars[username]})
+                    fake_bet = new_bet_create(user_id=1, round_id=game.id, price=random.randint(1, 1000), status=0, fake=True, baltype='deposit')
+                    fake_bet = session_for_thread.merge(fake_bet)
+                    fake_bet = {column.name: getattr(fake_bet, column.name) for column in CrashBets.__table__.columns if column.name != 'created_at'}
+                    fake_bet['avatar_url'] = users_and_avatars[username]
+                    fake_bet['username'] = username
+                    
+                    fake_bets.append( {username:fake_bet})
                     used_users.append(username)
+                    print(username )
+                    
+                
             used_bets = []
             for i in range(61):
                 """ if i %10 == 0:
@@ -451,9 +480,12 @@ def check_and_execute():
                 num_elements = random.randint(0, 2)
                 random_elements = random.sample(fake_bets, num_elements)
                 for element in random_elements:
-                    if element not in used_bets and (i%2==0):
-                        used_bets.append(element)
-                        bets_to_send.append(element)
+                    for key in element:
+                        if element[key]['id'] not in used_bets and (i%2==0):
+
+                            used_bets.append(element[key]['id'])
+                            bets_to_send.append(element)
+                        
 
                 socketio.emit("time_remaining", {"seconds_remained" : i, "for_game":game.id, "fake_bets":bets_to_send})
                 
@@ -522,15 +554,19 @@ def test_pick(current_multiplier, game_id):
                                     print('win', random_bet.price, current_multiplier,  win, win-random_bet.price)
                                     random_bet.won = win - random_bet.price
                                     random_bet.status =2 
+                                    random_bet.was_grabbed_at_multiplier = round( current_multiplier, 2)
                                     settings.profit_money -= win - random_bet.price 
                                     game.profit = game.profit - ( win - random_bet.price)
                                     print( win - random_bet.price, game.profit, win, random_bet.price,  'kkk')
                                     user = session_for_tests.query(User).filter(User.id == random_bet.user_id).first()
                                     user.deposit_balance += win
                                     user.total_amount_of_money_won += ( win - random_bet.price)
+                                    result = int(random_bet.id)
                                     session_for_tests.commit()
-
+                                    print('pizda', result)
+                                    return result
         except Exception as ex:
+                    print(ex)
                     'ok'
         finally:
             session_for_tests.commit()
@@ -555,9 +591,15 @@ def broadcast_current_game_handler(session):
                     
                         
                 current_multiplier = list_of_multipliers[i]
-                '''chance = random.random()
-                if chance >= 0.5 and  (1.1<=current_multiplier<=3.5):
-                    test_pick(current_multiplier=current_multiplier, game_id=game.id)'''
+                
+
+
+                chance = random.random()
+                if chance >= 0.85 and  (1.1<=current_multiplier<=3.5):
+                    resp = test_pick(current_multiplier=current_multiplier, game_id=game.id)
+                    print(resp, 'list')
+                    if resp:
+                        socketio.emit('current_game', {'game_id':game.id, "current_multiplier":list_of_multipliers[i], "fake_bet":resp})
                 socketio.emit('current_game', {'game_id':game.id, "current_multiplier":list_of_multipliers[i]})
                 if 10>current_multiplier > 4:
                     time.sleep(0.01)
@@ -625,7 +667,7 @@ def new_bet_create(user_id, round_id, price, status, fake, baltype):
             
             game = session.query(Crash).filter(Crash.id == round_id).first()
       
-            new_bet = CrashBets(user_id = user_id, round_id = round_id, price = price,  status = 0, fake = 0, baltype = baltype )
+            new_bet = CrashBets(user_id = user_id, round_id = round_id, price = price,  status = 0, fake = fake, baltype = baltype )
             session.add(new_bet)
     return new_bet
 
@@ -701,7 +743,7 @@ def start_game(data:dict, session_for_thread, fuck_up_next_game=False):####
             print(fuck_up_next_game, 'fuck')
             game.status = 1
             if not fuck_up_next_game:
-                game.multiplier = get_float_handler(data['round_id'])  
+                game.multiplier =100 #get_float_handler(data['round_id']) 
             else:
                 game.multiplier = 1
                 fuck_up_next_game = False

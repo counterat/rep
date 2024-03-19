@@ -42,6 +42,7 @@ class CrashBets(Base):
     price = Column(Float)
     withdraw = Column(Float)
     won = Column(Float, default=0)
+    was_grabbed_at_multiplier = Column(Integer)
     status = Column(Integer, default=0)
     fake = Column(Integer, default=0)
     baltype = Column(String)
