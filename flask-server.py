@@ -341,10 +341,10 @@ def pickupwinning_handler(data):
 
 
 
-@socketio.on('get_bets')
+@app.route('/get_bets')
 def get_bets():
     print(fake_bets)
-    client_sid = request.sid
+   
     game = session.query(Crash).filter(Crash.status == 1).order_by(Crash.id.desc()).first()
     if game:
            
@@ -359,7 +359,8 @@ def get_bets():
                     bet_to_send['username'] = username
                     bet_to_send['avatar_url'] = fake_bet[username]['avatar_url']
                     bets_to_send.append(bet_to_send)
-            socketio.emit('prev_bets', {'bets':bets_to_send})
+            return jsonify({'bets':bets_to_send})
+    return '1'
 
 
 @socketio.on('get_previous_xes')

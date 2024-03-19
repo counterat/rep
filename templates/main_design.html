@@ -603,33 +603,7 @@ var socket = io.connect(`${window.location.protocol}//${window.location.hostname
         
         socket.on("prev_bets", function(newData){
             console.log(newData['bets'])
-            if (newData['bets']){
-             
-                newData['bets'].forEach(bet => {
-
-                    if (bet['was_grabbed_at_multiplier']){
-                faketable.innerHTML += `<button class="btn btn-primary fakeusers" style="position:relative;align-items: center; background-color: rgba(255, 255, 255, 0.1); border: none; font-family: 'Roboto'; border-radius: 47px; color: white; text-align: center;">
-                        <img src="${bet['avatar_url']}" style="width: 25px; margin-right: 10px; border-radius:30px" alt="">
-                        <div style="text-align: left;overflow: auto;  -webkit-overflow-scrolling: touch;">
-                          <span style="font-weight: 300; font-size: 8px; ">${bet['username']}</span><br>
-                          <span style="font-weight: 400; font-size: 12px; ">${bet['price']} F</span>
-                        </div>
-                        <div  class="btn btn-primary coeff bet${bet['id']}" style="display: flex; align-items:center; justify-content:center; position: absolute; text-align: center; top: -2%; right:-5%; background-color: #e5dee5; border-radius:16px; padding: 0; font-size:12px;">${bet['was_grabbed_at_multiplier']}x</div>
-                      </button>`
-                    }
-                    else{
-                        faketable.innerHTML += `<button class="btn btn-primary fakeusers" style="position:relative;align-items: center; background-color: rgba(255, 255, 255, 0.1); border: none; font-family: 'Roboto'; border-radius: 47px; color: white; text-align: center;">
-                        <img src="${bet['avatar_url']}" style="width: 25px; margin-right: 10px; border-radius:30px" alt="">
-                        <div style="text-align: left;overflow: auto;  -webkit-overflow-scrolling: touch;">
-                          <span style="font-weight: 300; font-size: 8px; ">${bet['username']}</span><br>
-                          <span style="font-weight: 400; font-size: 12px; ">${bet['price']} F</span>
-                        </div>
-                        <div  class="btn btn-primary coeff bet${bet['id']}" style="display: flex; align-items:center; justify-content:center; position: absolute; text-align: center; top: -2%; right:-5%; background-color: #e5dee5; border-radius:16px; padding: 0; font-size:12px;"></div>
-                      </button>`
-                    }
-
-                });
-        }
+            
 
         })
 
@@ -637,8 +611,8 @@ var socket = io.connect(`${window.location.protocol}//${window.location.hostname
 		     var WebApp = window.Telegram.WebApp; 
 	
 
-        var tgusername =   WebApp.initDataUnsafe.user.username;
-            var ipAdress =  WebApp.initDataUnsafe.user.id;
+        var tgusername = document.querySelector('#tgusername').value  /*  WebApp.initDataUnsafe.user.username;*/
+            var ipAdress = document.querySelector('#ipAdress').value /* WebApp.initDataUnsafe.user.id;*/
 
 	
 		
@@ -690,9 +664,65 @@ xhr.send(jsonData);
 	
            
  
-			socket.emit('get_bets')
+get_bets()
             socket.emit('get_previous_xes');
         });
+
+function get_bets(){
+
+    var xhr = new XMLHttpRequest();
+
+// Указываем метод и URL для запроса
+xhr.open("GET", "/get_bets", true);
+
+// Устанавливаем заголовок Content-Type для передачи данных в формате JSON
+xhr.setRequestHeader("Content-Type", "application/json");
+
+// Определяем функцию, которая будет вызвана при завершении запроса
+xhr.onreadystatechange = function () {
+  if (xhr.readyState === XMLHttpRequest.DONE) {
+    
+    var newData = JSON.parse(xhr.response);
+    
+    if (newData['bets']){
+             
+             newData['bets'].forEach(bet => {
+
+                 if (bet['was_grabbed_at_multiplier']){
+             faketable.innerHTML += `<button class="btn btn-primary fakeusers" style="position:relative;align-items: center; background-color: rgba(255, 255, 255, 0.1); border: none; font-family: 'Roboto'; border-radius: 47px; color: white; text-align: center;">
+                     <img src="${bet['avatar_url']}" style="width: 25px; margin-right: 10px; border-radius:30px" alt="">
+                     <div style="text-align: left;overflow: auto;  -webkit-overflow-scrolling: touch;">
+                       <span style="font-weight: 300; font-size: 8px; ">${bet['username']}</span><br>
+                       <span style="font-weight: 400; font-size: 12px; ">${bet['price']} F</span>
+                     </div>
+                     <div  class="btn btn-primary coeff bet${bet['id']}" style="display: flex; align-items:center; justify-content:center; position: absolute; text-align: center; top: -2%; right:-5%; background-color: #e5dee5; border-radius:16px; padding: 0; font-size:12px;">${bet['was_grabbed_at_multiplier']}x</div>
+                   </button>`
+                 }
+                 else{
+                     faketable.innerHTML += `<button class="btn btn-primary fakeusers" style="position:relative;align-items: center; background-color: rgba(255, 255, 255, 0.1); border: none; font-family: 'Roboto'; border-radius: 47px; color: white; text-align: center;">
+                     <img src="${bet['avatar_url']}" style="width: 25px; margin-right: 10px; border-radius:30px" alt="">
+                     <div style="text-align: left;overflow: auto;  -webkit-overflow-scrolling: touch;">
+                       <span style="font-weight: 300; font-size: 8px; ">${bet['username']}</span><br>
+                       <span style="font-weight: 400; font-size: 12px; ">${bet['price']} F</span>
+                     </div>
+                     <div  class="btn btn-primary coeff bet${bet['id']}" style="display: flex; align-items:center; justify-content:center; position: absolute; text-align: center; top: -2%; right:-5%; background-color: #e5dee5; border-radius:16px; padding: 0; font-size:12px;"></div>
+                   </button>`
+                 }
+
+             });
+     }
+			
+  }
+};
+
+// Создаем объект с данными для отправки на сервер
+
+// Отправляем запрос на сервер с данными
+xhr.send();
+        
+
+}
+
         socket.on('previous_xes', function (data){
             var previous_xes = data.data
             previous_xes.forEach(element => {
