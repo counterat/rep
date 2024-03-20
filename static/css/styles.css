@@ -1,0 +1,391 @@
+  
+        html{
+            font-family: "Roboto";
+            user-select: none; 
+        }
+        body{
+            user-select: none; 
+        }
+        .dropdown-toggle{
+            border-radius: 23px;
+            background-color: #ffffff;
+            border: 4px solid #a6bbcc; font-weight: 700;
+font-family: 'Roboto'; color: black;
+text-align: center;
+        }
+        .balance-dropdown-menu
+        {
+            border-radius: 23px; font-size: 14px; text-align: left; min-width: 250px;
+        }
+
+        #depositBalance , #bonusBalance{
+            position: absolute; right: 25px;
+        }
+        .chat-button, .profile-button{
+            border-radius: 12px;
+            background-color: #b3d6f2;  height: fit-content;      
+            border: 2px solid #65a7fb; width: fit-content; position:relative;
+        }
+.moneymenu-dropdown-menu{
+    border-radius: 23px; font-size: 14px; text-align: left; min-width: 250px;
+}
+
+#col-for-coefs{
+    display: flex;; gap: 5px; overflow-x: auto; -webkit-overflow-scrolling: touch;
+}
+
+.sky{
+    width: 100%; height: 52vh; /* Высота контейнера */
+            overflow: hidden; /* Скрыть изображения, выходящие за пределы контейнера */ 
+            position: relative; background-image: url(/static/img/main\ screen\ \(1\).png); background-size: cover; /* Масштабирование изображения для заполнения всей области фона */
+  background-position: center; background-repeat: no-repeat; border-radius: 30px;
+}
+
+#currentMultiplier{
+    font-size: 'Roboto'; font-weight: 900; position: absolute; top: 0; right: 5%; color: white;
+}
+
+.container-for-btns{
+    position: absolute; top: 4%; left: 3% ; display: flex; flex-direction: column; gap: 5px; width: 35%; overflow-y: auto; max-height: 100%;
+}
+
+.closeBtn{
+    background-color: rgba(255, 255, 255, 0.1); border: none; font-family: 'Roboto'; border-radius: 47px; color: white; transition: width 1s ease; 
+}
+
+#container-for-progress{
+    display: flex; flex-direction: column; align-items:center ; justify-content:center; position: absolute; left: 46%; top: 50%;
+                    transform: translateY(-50%); width: 50%; border-radius: 23px;
+                    background-image: linear-gradient(0deg, #b3d6f2 0%, #498fea 100%);
+                    border: 5px solid #b3d6f2; display: none; z-index: 2;
+}
+
+#waiting-for-game{
+    color: #ffffff;
+                      font-weight: 900;
+                      font-family: 'Roboto'; font-size: 16px;
+                      text-align: center; margin-top: 15px;
+}
+
+.progress{
+    width: 90%; border-radius: 23px; margin-bottom: 15px; background-color: #367cd8;  
+}
+
+.big-cloud, .small-cloud{
+    position: absolute;
+}
+.big-cloud{
+    width: 30%;
+}
+.small-cloud{
+    width: 17%;
+}
+
+#frog{
+    position: absolute;   width: 40%;  z-index: 10;
+}
+
+.bet-back{
+    background-color: #b3d6f2;
+            border: 4px solid #cde2f2; margin-top: 10px;  max-height: 30vh; border-radius: 30px;
+}
+
+.buttons-there{
+    display: flex; justify-content: center; align-items: start; height: 100%; padding: 10px ; gap: 8px;
+}
+
+.buttons-there-left{
+    display: flex; justify-content: space-between; gap: 8px; align-items: center;  flex: 4; flex-wrap: wrap;
+                    
+}
+
+.auto-withdraw{
+    background-color: #ffffff;
+                        border: 2px solid #cde2f2; border-radius: 12PX; flex: 2; max-height: 45px;
+}
+
+#basic-addoncoeff{
+    background-color: white; border: none; font-size: 24px; line-height: 0.5; padding-bottom: 0.4em; padding-left: 0;
+}
+
+.back-for-bet-button{
+    background-color: #ffffff;
+                        border: 2px solid #cde2f2; border-radius: 12PX; flex: 3; max-height: 45px; min-width: 80px;
+                        
+}
+#basic-addon1{
+    background-color: white; border: none; font-size: 18px; line-height: 0.5; padding-bottom: 0.4em; color: #00b135; padding-left: 0;;
+}
+
+#betAmount{
+    border: none; outline: none; padding-right: 0px; padding-left: 4px; padding-bottom: 5px;padding-top: 5px;
+}
+
+#maxPossibleBet{
+    display: flex; align-items: center; justify-content: center; padding-left: 5px; padding-right: 5px; border-radius: 6PX;  font-size: 8px; aspect-ratio: 93/70; background-color: #cde2f2; color: #8ba6ba; border: none; font-family: 'Roboto';
+}
+
+.row-of-multipliers{
+    display: flex; justify-content: space-between; gap: 10px; width: 100%; flex-wrap: wrap;
+}
+.multipliers{
+    background-color:#99c5ff; padding: 0 0; 
+                            border: 1px solid #6cabfb; border-radius: 18PX; flex: 1;flex-basis: 70px
+}
+#auto-withdrawal{
+    border-radius: 40px ;
+}
+
+.buttons-there-right{
+    display: flex; justify-content: center; align-items: center;  width: 40%;
+}
+
+#make_bet_button{
+    transition: background 1s ease; white-space: nowrap; border-radius: 15px; border: 2px solid #cde2f2;; color: #f5f5f5; background: linear-gradient(180deg, #cf090f 0%, #fd4b27 100%, #fd4b27 100%); width: 100%; min-height: 80px; font-family: 'Roboto'; font-weight: 900; 
+}
+
+#notificationContainer{
+    position: fixed;
+    bottom: 20px;
+    right: 20px; 
+}
+
+.fakeusers{
+    position:relative;align-items: center; background-color: rgba(255, 255, 255, 0.1); border: none; font-family: 'Roboto'; border-radius: 47px; color: white; text-align: center;
+
+}
+
+.img-fakeusers{
+    width: 25px; margin-right: 10px; border-radius:30px
+}
+
+.cont-fakeusers{
+    text-align: left;overflow: auto;  -webkit-overflow-scrolling: touch;
+}
+
+.coeff{
+    display: flex; align-items:center; justify-content:center; position: absolute; text-align: center; top: -2%; right:-5%; background-color: #e5dee5; border-radius:16px; padding: 0; font-size:12px;
+}
+
+.coeff_lose{
+    border-radius: 47px;
+            background-color: #ffffff;  display: flex; justify-content: center; align-items: center;
+            border: 3px solid #ff3400;height: 5vh; color: #ff3400;text-align: center; width: 20%; font-weight: 500; flex: 0 0 20%;
+}
+
+.coeff_big_win{
+    border-radius: 47px;
+background-color: #62a5fb;;  display: flex; justify-content: center; align-items: center; 
+border: 3px solid #65a7fb; height: 5vh; color: white;text-align: center; width: 20%; font-weight: 500; flex: 0 0 20%;
+}
+
+.coeff_win{
+    border-radius: 47px;
+            background-color: #ffffff;  display: flex; justify-content: center; align-items: center; height: 5vh;
+            border: 3px solid #65a7fb; color: #65a7fb;text-align: center; width: 18%; font-weight: 500; flex: 0 0 20%;
+}
+
+.big-cloud, .small-cloud{
+    z-index: 1;
+}
+.basicCoeff{
+    color: #8d9dac;
+}
+.notification {
+position: absolute;
+bottom: 0%;
+width: 85%;
+transition: opacity 5s ease;
+border: 2px solid #ffffff;
+border-radius: 15px;
+left: 50%; /* Расположение слева на 50% ширины контейнера */
+transform: translateX(-50%); 
+text-align: center;
+color: #ffffff;
+font-weight: 500;
+font-family: "Roboto";
+height: 20%;
+display: flex;
+align-items: center;
+justify-content: center;
+z-index: 12;
+opacity: 1;
+transition: opacity 3s ease; 
+
+}
+.closeBtn{
+width: 100%; 
+}
+
+.notification.fade-out {
+opacity: 0; /* Устанавливаем конечное значение прозрачности */
+}
+
+.notification-success{
+background-color: #3beb70;
+
+
+}
+.yellow{
+color:yellow;
+}
+
+
+.notification-error{
+background-color: #fb4926;
+}
+.notification-warning{
+background-color: #fbc126;
+}
+.notification-blue{
+background-color: #add2f2;
+}
+
+.container-for-btns .fakeusers{
+    transition: height 0.3s ease;
+    display: flex;
+    width: 80%;
+    
+}
+
+.collapsed {
+display: none;
+
+}
+.closeBtnCollapse{
+width: 30%;
+}
+.faketable{
+display: flex;
+}
+
+
+#col-for-coefs::-webkit-scrollbar{
+    width: 0px;
+}
+#frog.jump{
+    animation: jump 1s infinite alternate linear;
+}
+
+#coeff:focus{
+    border: none; outline: none;box-shadow: none;
+}
+#coeff[type="text"]{
+    font-size: 18px;
+    font-family: 'Roboto';
+    color: #3b3b3b;
+    line-height: 1px;
+font-weight: 500;
+}
+#bet-input:focus{
+    border: none; outline: none;box-shadow: none;
+}
+#bet-input[type="text"]{
+    font-size: 18px;
+    font-family: 'Roboto';
+    color: #3b3b3b;
+    line-height: 1px;
+font-weight: 500;
+}
+.input-group-prepend {
+margin-right: -11px;
+}
+
+
+
+#frog.fly-from-button{
+animation:jump 1s infinite alternate linear, flyFromBottom 1s ease-out;
+top: 30%;
+left: 50%;
+}
+
+#frog.fast-fly-from-button{
+animation:jump 0.25s infinite alternate linear, flyFromBottom 1s ease-out;
+top: 30%;
+left: 50%;
+}
+
+@keyframes jump {
+0% { transform: translateY(5%); } /* начальная позиция вверху */
+100% { transform: translateY(-5%); } /* конечная позиция внизу */
+}
+
+#frog.fly-top-right{
+animation: flyToTopRight 1s ease-out;
+top: -20%;
+left: 120%;
+}
+
+
+@keyframes flyToTopRight{
+from{
+top: 30%;
+left: 50%;
+transform: rotate(0deg);
+}
+to{
+top: -20%;
+left: 120%;
+transform: rotate(90deg);
+}
+}
+
+@keyframes slideLeftBottom {
+
+to { left: -50%; 
+  top:120%;
+}
+
+}
+@keyframes slideLeft{
+to { left: -50%; 
+  
+}
+}
+@keyframes flyFromBottom{
+from{
+top: 120%;
+left: 50%;
+}
+to{
+top: 30%; left: 50%
+}
+}
+.overlay {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background-color: rgba(0, 0, 0, 0.5);
+display: flex;
+justify-content: center;
+align-items: center;
+z-index: 9999999;
+}
+
+.widgetContainer {
+background-color: white;
+padding: 20px;
+border-radius: 10px;
+box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+position: relative;
+width: 90%;
+height: 90%;
+}
+
+.close-btn {
+position: absolute;
+top: 10px;
+right: 10px;
+font-size: 20px;
+background: none;
+border: none;
+cursor: pointer;
+}
+
+.btn-primary:hover{
+    color: '';
+    background-color: '';
+     border-color: '';
+}

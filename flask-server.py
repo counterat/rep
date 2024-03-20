@@ -487,7 +487,7 @@ def check_and_execute():
                             used_bets.append(element[key]['id'])
                             bets_to_send.append(element)
                         
-
+                print(bets_to_send, 'yolo')
                 socketio.emit("time_remaining", {"seconds_remained" : i, "for_game":game.id, "fake_bets":bets_to_send})
                 
                 time.sleep(0.1)
