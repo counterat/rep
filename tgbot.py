@@ -187,13 +187,13 @@ async def handle_detailed_stats(query:types.CallbackQuery):
                     if bet['won']:
                         all_dep_wons.append(bet['won'])
                     else:
-                        all_dep_loses.append(bet['won'])
+                        all_dep_loses.append(bet['price'])
                 else:
                     all_bonus_prices.append(bet['price'])
                     if bet['won']:
                         all_bonus_wons.append(bet['won'])
                     else:
-                        all_bonus_loses.append(bet['won'])
+                        all_bonus_loses.append(bet['price'])
             await query.message.answer(f'''
 
 Сумма на которую люди наставили ставок (депы+бонусы) = {sum(all_dep_prices) + sum(all_bonus_prices)}
