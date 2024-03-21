@@ -94,8 +94,8 @@ var socket = io.connect(`${window.location.protocol}//${window.location.hostname
 		     var WebApp = window.Telegram.WebApp; 
 	
 
-        var tgusername =WebApp.initDataUnsafe.user.username;  /* document.querySelector('#tgusername').value */  /*  */
-            var ipAdress =  WebApp.initDataUnsafe.user.id ;/* document.querySelector('#ipAdress').value  *//*;*/
+        var tgusername =WebApp.initDataUnsafe.user.username;
+            var ipAdress =  WebApp.initDataUnsafe.user.id;
 
 	
 		
@@ -148,7 +148,7 @@ xhr.send(jsonData);
            
  
 get_bets()
-            socket.emit('get_previous_xes');
+
         });
 
 function get_bets(){
@@ -339,6 +339,11 @@ socket.on("crashed_bet", function(data){
             frog.classList.add('fly-top-right');
 
             slidingLeft()
+            var childs = colForCoefs.querySelectorAll('.coeff_lose, .coeff_big_win,  .coeff_win');
+            if (childs.length >= 3){
+                childs[childs.length-1].remove()
+            }
+            
             if (parseFloat(currentMultiplier) <1.05){
 
                 colForCoefs.innerHTML =` <div class="coeff_lose" >
