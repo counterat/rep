@@ -386,7 +386,7 @@ socket.on("crashed_bet", function(data){
 
             slidingLeft()
             var childs = colForCoefs.querySelectorAll('.coeff_lose, .coeff_big_win,  .coeff_win');
-            if (childs.length >= 3){
+            if (childs.length >= 20){
                 childs[childs.length-1].remove()
             }
             
