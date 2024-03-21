@@ -182,18 +182,19 @@ async def handle_detailed_stats(query:types.CallbackQuery):
             all_dep_loses = []
             all_bonus_loses = []
             for bet in bets_data:
-                if bet['baltype'] == 'deposit':
-                    all_dep_prices.append(bet['price'])
-                    if bet['won']:
-                        all_dep_wons.append(bet['won'])
+                if not bet['fake']:
+                    if bet['baltype'] == 'deposit':
+                        all_dep_prices.append(bet['price'])
+                        if bet['won']:
+                            all_dep_wons.append(bet['won'])
+                        else:
+                            all_dep_loses.append(bet['price'])
                     else:
-                        all_dep_loses.append(bet['price'])
-                else:
-                    all_bonus_prices.append(bet['price'])
-                    if bet['won']:
-                        all_bonus_wons.append(bet['won'])
-                    else:
-                        all_bonus_loses.append(bet['price'])
+                        all_bonus_prices.append(bet['price'])
+                        if bet['won']:
+                            all_bonus_wons.append(bet['won'])
+                        else:
+                            all_bonus_loses.append(bet['price'])
             await query.message.answer(f'''
 
 Сумма на которую люди наставили ставок (депы+бонусы) = {sum(all_dep_prices) + sum(all_bonus_prices)}
@@ -201,8 +202,8 @@ async def handle_detailed_stats(query:types.CallbackQuery):
 Общая сумма ставок с деп баланса =  {sum(all_dep_prices) }
 Сумма выигрышей с деп баланса = {sum(all_dep_wons)}
 Сумма проигрышей с деп баланса = {sum(all_dep_loses)}
-Самый большой выигрыш (деп баланс) = {max(all_dep_wons)}
-Самый большой проигрыш (деп баланс) = {max(all_dep_loses)}
+Самый большой выигрыш (деп баланс) = {max(all_dep_wons) if all_dep_wons else None}
+Самый большой проигрыш (деп баланс) = {max(all_dep_loses) if all_dep_loses else None}
 
 
 Общая сумма ставок с бонус баланса =  {sum(all_bonus_prices) }
