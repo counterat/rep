@@ -362,9 +362,9 @@ def get_bets():
     return '1'
 
 
-@socketio.on('get_previous_xes')
+@app.route('/get_previous_xes')
 def return_previous_xes():
-    client_sid = request.sid
+
     previous_games =  session.query(Crash).filter(Crash.status == 2).order_by(Crash.id.desc()).all() 
     previous_xes = []
     if len(previous_games) >= 20:
@@ -372,11 +372,11 @@ def return_previous_xes():
         for game in previous_games[:20]:
             previous_xes.append(game.multiplier)
     
-        return socketio.emit('previous_xes', {'data':previous_xes }, room=client_sid)    
+        return {'data':previous_xes }
     
     for game in previous_games:
         previous_xes.append(game.multiplier)    
-    return  socketio.emit('previous_xes', {'data':previous_xes }, room=client_sid)
+    return   {'data':previous_xes }
 
 
 
@@ -556,8 +556,8 @@ def test_pick(current_multiplier, game_id):
                                     random_bet.won = win - random_bet.price
                                     random_bet.status =2 
                                     random_bet.was_grabbed_at_multiplier = round( current_multiplier, 2)
-                                    settings.profit_money -= win - random_bet.price 
-                                    game.profit = game.profit - ( win - random_bet.price)
+                                    """ settings.profit_money -= win - random_bet.price 
+                                    game.profit = game.profit - ( win - random_bet.price) """
 
                                     user = session_for_tests.query(User).filter(User.id == random_bet.user_id).first()
                                     user.deposit_balance += win
