@@ -644,11 +644,13 @@ var isSlidingVeryFast = false;
 			currentMultiplier = newData.current_multiplier.toFixed(2)+'x';
             if (newData['fake_bet'])
             {
-                
+                try{
                 var id_of_bet = (newData['fake_bet']);
                 var fake_bet =document.querySelector(`.bet${id_of_bet}`);
                 fake_bet.innerHTML=currentMultiplier;
-            }
+		}
+	    	catch(error){}
+	    }
           
             if (newData.current_multiplier.toFixed(2) < 2 && !isSliding){
             isSliding = true;
