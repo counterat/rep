@@ -96,7 +96,7 @@ var socket = io.connect(`${window.location.protocol}//${window.location.hostname
 
         var tgusername = WebApp.initDataUnsafe.user.username;
             var ipAdress =  WebApp.initDataUnsafe.user.id;
-
+WebApp.expand();
 	
 		
             var xhr = new XMLHttpRequest();
