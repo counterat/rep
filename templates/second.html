@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+    <style>
+ html{
+  font-family: 'Roboto';
+ }
+        </style>
+</head>
+<body>
+  <input type="text" style="display: none; " value="{{ip_adress}}" id="ipAdress">
+  <input type="text" style="display: none; " value="{{ip_adress}}" id="tgusername">
+  <input type="text" style="display: none; " value="{{is_game_in_progress}}" id="gameInProgress">
+  <input type="text" style="display: none; " id="invitationCode" value="{{invitation_code}}">
+   <!-- Just an image -->
+<nav class="navbar navbar-light bg-light">
+  <a class="navbar-brand" href="/">
+    <img src="/static/img/photo_2024-03-28_11-21-59.jpg" width="30" height="30" alt="">
+  </a>
+</nav>
+      <div class="container">
+
+        <div class="row" style="margin-top: 50px;">
+          <div class="col-3">
+            <img src="/static/img/ViDmu0NECic.jpg" class="profile-pic" style="border-radius: 50%;aspect-ratio: 1/1; width: 80%; " alt="">
+          </div>
+          <div class="col-4"><div style="display: flex; flex-direction: column; align-items:  center; justify-content: center; height: 50%;">
+            <div class="nickname" style="font-weight: bold;">
+              nickname
+              </div>
+              <div class="date-of-registration" style="text-align: center; color: grey;">
+              Дата регистрации 24.08.2006
+              </div>
+          </div>
+
+          </div>
+          <div class="col-3 offset-2"><button type="button" onclick="copyToClipboard()" class="btn btn-secondary copyButton" style="background-color: grey; color: white; width: 100%; overflow-x: auto;">ID 123e4567-e89b-12d3-a456</button>
+          </div>
+        </div>
+     
+      </div>
+      <div id="depositWindow" style="display: flex; align-items:  center; justify-content: center; width: 100%;">
+        <div style="display: flex; align-items:  center; justify-content: center; width: 50%; flex-direction: column; gap: 30px;">
+          <div class="btn-group" role="group" aria-label="Basic outlined example">
+            <button type="button" class="btn btn-outline-primary" onclick="showDepositWindow()">Депозит</button>
+            <button type="button" class="btn btn-outline-primary" onclick="showBonusWindow()">Бонус</button>
+       
+          </div>
+          <div class="window" style="background-color: #007bff; height: 30vh; width: 100%; border-radius: 30px; display: flex; justify-content: center; align-items: center; flex-direction: column; color: white;">
+  <span>Баланс</span>
+  <h1 class="deposit-balance">100$</h1>
+  <div class="money" style="display: flex; align-items:  center; justify-content: center; width: 80%; gap: 10%;"> 
+    <button type="button" class="btn btn-light" onclick="topUpBalanceClicked()" style="color: #007bff ; background-color: #fff; flex: 1;">Депозит + </button>
+    <button type="button" class="btn btn-light" style="color: white ; background-color: rgba(255, 255, 255, 0.4); flex: 1; border: none;">Вывод &uarr;</button>
+  </div>
+          </div>
+        
+        </div>
+
+      </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      <div id="bonusWindow" style="display: flex; align-items:  center; justify-content: center; width: 100%; display: none;">
+        <div style="display: flex; align-items:  center; justify-content: center; width: 50%; flex-direction: column; gap: 30px;">
+          <div class="btn-group" role="group" aria-label="Basic outlined example">
+            <button type="button" class="btn btn-outline-primary" onclick="showDepositWindow()">Депозит</button>
+            <button type="button" class="btn btn-outline-primary" onclick="showBonusWindow()">Бонус</button>
+       
+          </div>
+          <div class="window" style="background-color: #007bff; height: 30vh; width: 100%; border-radius: 30px; display: flex; justify-content: center; align-items: center; flex-direction: column; color: white;">
+  <span>Баланс</span>
+  <h1 class="bonus-balance">100$</h1>
+
+          </div>
+        
+        </div>
+
+      </div>
+
+
+
+
+      <div style="display: flex; align-items:  center; justify-content: center; flex-direction: column; gap: 50px; margin-top: 50px;">
+        <button type="button" class="btn btn-primary"  data-toggle="collapse" data-target="#collapseExample" style="flex: 1; ">Реферальная программа</button>
+        <div class="collapse" id="collapseExample">
+          
+          <div class="card card-body">
+          Нажмите чтоб скопировать вашу реферальную <a id="refLink" onclick=" copyLink() " href="">ссылку</a>
+          </div>
+        </div>
+        <button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#collapsePromo" style="flex: 1;">Введите промокод</button>
+        <div class="collapse" id="collapsePromo">
+          
+          <form>
+            <div class="form-group">
+              <label for="formGroupExampleInput">Промокод</label>
+              <input type="text" class="form-control" id="formGroupExampleInput" placeholder="BONUS">
+            </div>
+            <button type="submit" class="btn btn-primary">Активировать</button>
+          </form>
+        </div>
+        <button type="button" class="btn btn-primary" style="flex: 1;">Поддержка</button>
+        <button type="button" class="btn btn-primary" style="flex: 1;">Язык</button>
+      </div>
+      <script>
+var bonusWindow = document.querySelector('#bonusWindow');
+var depositWindow = document.querySelector('#depositWindow');
+var bonusBalanceEleemnt = document.querySelector('.bonus-balance');
+
+function topUpBalanceClicked(){
+			amount_in_rub = parseFloat(prompt('Укажите сумму на которую вы хотите пополнить баланс'))
+
+			socket.emit("topUpBalance", {user_id : user_id, amount : amount_in_rub})
+
+		}
+function copyLink(){
+  element = document.querySelector('#refLink');
+console.log(element)
+
+  var text = element.href;
+  
+  // Создаем элемент textarea для временного хранения текста
+  var textarea = document.createElement("textarea");
+  textarea.value = text;
+
+  // Добавляем textarea на страницу
+  document.body.appendChild(textarea);
+
+  // Выделяем текст в textarea
+  textarea.select();
+
+  // Копируем выделенный текст в буфер обмена
+  document.execCommand("copy");
+
+  // Удаляем временный textarea
+  document.body.removeChild(textarea);
+}
+
+function showDepositWindow(){
+
+  depositWindow.style.display='flex';
+  bonusWindow.style.display = "none";
+depositBalanceEleemnt.innerHTML = balances.depositBalance + '$';
+
+
+}
+
+function showBonusWindow(){
+
+  bonusWindow.style.display = "flex";
+  depositWindow.style.display='none';
+
+bonusBalanceEleemnt.innerHTML = balances.bonusBalance + '$';
+
+}
+
+function copyToClipboard() {
+element = document.querySelector('.copyButton');
+console.log(element)
+
+  var text = element.innerHTML;
+  var text = text.substring(3)
+  // Создаем элемент textarea для временного хранения текста
+  var textarea = document.createElement("textarea");
+  textarea.value = text;
+
+  // Добавляем textarea на страницу
+  document.body.appendChild(textarea);
+
+  // Выделяем текст в textarea
+  textarea.select();
+
+  // Копируем выделенный текст в буфер обмена
+  document.execCommand("copy");
+
+  // Удаляем временный textarea
+  document.body.removeChild(textarea);
+
+  // Визуальное подтверждение копирования (необязательно)
+
+}
+
+var balances = {
+  depositBalance : 0,
+  bonusBalance :0
+}
+var refLink = document.querySelector('#refLink');
+var user_id;
+var nicknameElement = document.querySelector('.nickname');
+var depositBalanceEleemnt = document.querySelector('.deposit-balance') ;
+        var socket = io.connect(`${window.location.protocol}//${window.location.hostname}:${window.location.port}`);
+        socket.on('connect', function(data) {
+		   /*   var WebApp = window.Telegram.WebApp; 
+
+
+WebApp.expand(); */
+
+var xhr = new XMLHttpRequest();
+
+// Указываем метод и URL для запроса
+xhr.open("POST", "/authorize", true);
+
+// Устанавливаем заголовок Content-Type для передачи данных в формате JSON
+xhr.setRequestHeader("Content-Type", "application/json");
+
+// Определяем функцию, которая будет вызвана при завершении запроса
+xhr.onreadystatechange = function () {
+  if (xhr.readyState === XMLHttpRequest.DONE) {
+    
+    var data = JSON.parse(xhr.response);
+    console.log(data)
+    balances.depositBalance = data['user']['deposit_balance'];
+    balances.bonusBalance = data['user']['bonus_balance'];
+    user_id = data['user']['id'];
+    refLink.href = `https://t.me/crashgamedistbot?start=${data['user']['invitation_code']}`
+    depositBalanceEleemnt.innerHTML = data['user']['deposit_balance'] + '$';
+    nicknameElement.innerHTML = data['user']['username'] ;
+    document.querySelector('.profile-pic').src =  data['user']['photo_of_user_url']
+  }
+};
+
+// Создаем объект с данными для отправки на сервер
+var messageData = {
+     
+            };
+
+
+// Преобразуем объект с данными в формат JSON
+var jsonData = JSON.stringify(messageData);
+
+// Отправляем запрос на сервер с данными
+xhr.send(jsonData);
+
+
+})
+socket.on('generate_widget_for_payment', function(data){
+window.location.href = data['url']
+})
+
+      </script>
+</body>
+</html>

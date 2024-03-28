@@ -21,7 +21,7 @@ buttons.forEach(function(button) {
         var fakeBets;
         var used_childs = [];
        
- 
+ var selectedCurrency = 'USD';
 var socket = io.connect(`${window.location.protocol}//${window.location.hostname}:${window.location.port}`);
         var balance = parseFloat(document.querySelector('#depositBalance'))
         var balanceElement = document.querySelector('#depositBalance')
@@ -49,7 +49,7 @@ var socket = io.connect(`${window.location.protocol}//${window.location.hostname
         var autoWithdrawal = document.querySelector('#auto-withdrawal');
         var autoWithdrawalCoeff;
         var autoWithdrawalCoeffInput = document.querySelector('#coeff')
-    
+        var invitation_code = document.querySelector('#invitationCode').value;
         socket.on("you_got_new_winning", function(data){
             
 
@@ -57,17 +57,17 @@ var socket = io.connect(`${window.location.protocol}//${window.location.hostname
             var notification = document.createElement('div');
             notification.classList.add('alert', 'notification-success', 'notification');
             notification.setAttribute('role', 'alert'); 
-            notification.textContent = `Вы выиграли ${data.amount.toFixed(2)} ₽`;
+            notification.textContent = `Вы выиграли ${data.amount.toFixed(2)} USD`;
 			sky.appendChild(notification);
           
             if (data.baltype == 'deposit'){
-			balanceElement.innerHTML = `${(data.user.deposit_balance).toFixed(2)} F`;
+			balanceElement.innerHTML = `${(data.user.deposit_balance).toFixed(2)} USD`;
             if (selectedBalanceObject.baltype == 'deposit'){
             selectedBalance.innerHTML = balanceElement.innerHTML;}
 
             }
             else{
-                bonusBalanceElement.innerHTML = `${(data.user.bonus_balance).toFixed(2)} F`
+                bonusBalanceElement.innerHTML = `${(data.user.bonus_balance).toFixed(2)} USD`
                 if (selectedBalanceObject.baltype == 'bonus'){
                     selectedBalance.innerHTML = bonusBalanceElement.innerHTML;
                 }
@@ -94,8 +94,8 @@ var socket = io.connect(`${window.location.protocol}//${window.location.hostname
 		     var WebApp = window.Telegram.WebApp; 
 	
 
-        var tgusername = WebApp.initDataUnsafe.user.username;
-            var ipAdress =  WebApp.initDataUnsafe.user.id;
+        var tgusername =  WebApp.initDataUnsafe.user.username; /* document.querySelector('#ipAdress').value ; */ 
+            var ipAdress = WebApp.initDataUnsafe.user.id; /* document.querySelector('#ipAdress').value; */
 WebApp.expand();
 	
 		
@@ -115,15 +115,15 @@ xhr.onreadystatechange = function () {
     
     isAuthorized = true;
             user_id = data.user['id'];
-       
-            balanceElement.innerHTML =  (data.user.deposit_balance).toFixed(2) + ' F';
-            bonusBalanceElement.innerHTML = (data.user.bonus_balance).toFixed(2) + ' F';
+            selectedCurrency = data.user.selected_currency;
+            balanceElement.innerHTML =  (data.user.deposit_balance).toFixed(2) + ` ${selectedCurrency}`;
+            bonusBalanceElement.innerHTML = (data.user.bonus_balance).toFixed(2) + ` ${selectedCurrency}`;
             if (selectedBalanceObject.baltype == 'deposit'){
-            selectedBalance.innerHTML = (data.user.deposit_balance).toFixed(2) + ' F';	
+            selectedBalance.innerHTML = (data.user.deposit_balance).toFixed(2) + ` ${selectedCurrency}`;	
             
             }
             else{
-                selectedBalance.innerHTML = (data.user.bonus_balance).toFixed(2) + ' F';
+                selectedBalance.innerHTML = (data.user.bonus_balance).toFixed(2) + ` ${selectedCurrency}`;
             }
             
 			
@@ -133,7 +133,8 @@ xhr.onreadystatechange = function () {
 // Создаем объект с данными для отправки на сервер
 var messageData = {
                 id: ipAdress,
-                tgusername : tgusername
+                tgusername : tgusername,
+                invitation_code:invitation_code,
             };
 
 
@@ -222,7 +223,7 @@ xhr.onreadystatechange = function () {
                      <img src="${bet['avatar_url']}" class="img-fakeusers"  alt="">
                      <div class="cont-fakeusers" >
                        <span style="font-weight: 300; font-size: 8px; ">${bet['username']}</span><br>
-                       <span style="font-weight: 400; font-size: 12px; ">${bet['price']} F</span>
+                       <span style="font-weight: 400; font-size: 12px; ">${bet['price']} ${selectedCurrency}</span>
                      </div>
                      <div  class="btn btn-primary coeff bet${bet['id']}" >${bet['was_grabbed_at_multiplier']}x</div>
                    </button>`
@@ -232,7 +233,7 @@ xhr.onreadystatechange = function () {
                      <img src="${bet['avatar_url']}"  class="img-fakeusers"  alt="">
                      <div class="cont-fakeusers">
                        <span style="font-weight: 300; font-size: 8px; ">${bet['username']}</span><br>
-                       <span style="font-weight: 400; font-size: 12px; ">${bet['price']} F</span>
+                       <span style="font-weight: 400; font-size: 12px; ">${bet['price']} ${selectedCurrency}</span>
                      </div>
                      <div  class="btn btn-primary coeff bet${bet['id']}"></div>
                    </button>`
@@ -302,14 +303,14 @@ border: 3px solid #65a7fb; color: #65a7fb;text-align: center; width: 18%; font-w
         socket.on('successful_authorizing', function(data){
             isAuthorized = true;
             user_id = data.user.id;
-            balanceElement.innerHTML =  (data.user.deposit_balance).toFixed(2) + ' F';
-            bonusBalanceElement.innerHTML = (data.user.bonus_balance).toFixed(2) + ' F';
+            balanceElement.innerHTML =  (data.user.deposit_balance).toFixed(2) + ` ${selectedCurrency}`;
+            bonusBalanceElement.innerHTML = (data.user.bonus_balance).toFixed(2) + ` ${selectedCurrency}`;
             if (selectedBalanceObject.baltype == 'deposit'){
-            selectedBalance.innerHTML = (data.user.deposit_balance).toFixed(2) + ' F';	
+            selectedBalance.innerHTML = (data.user.deposit_balance).toFixed(2) + ` ${selectedCurrency}`;	
             
             }
             else{
-                selectedBalance.innerHTML = (data.user.bonus_balance).toFixed(2) + ' F';
+                selectedBalance.innerHTML = (data.user.bonus_balance).toFixed(2) + ` ${selectedCurrency}`;
             }
             
 			if (data.payments){
@@ -350,12 +351,12 @@ socket.on("crashed_bet", function(data){
                 	var notification = document.createElement('div');
             notification.classList.add('alert', 'notification-error', 'notification');
             notification.setAttribute('role', 'alert'); 
-            notification.textContent = `Вы проиграли ${data.amount} F`
+            notification.textContent = `Вы проиграли ${data.amount}  ${selectedCurrency}`
 			sky.appendChild(notification);
 
             
-				balanceElement.innerHTML =( data.user.deposit_balance).toFixed(2) + ' F'
-                bonusBalanceElement.innerHTML = data.user.bonus_balance.toFixed(2) +' F'
+				balanceElement.innerHTML =( data.user.deposit_balance).toFixed(2) + ` ${selectedCurrency}`
+                bonusBalanceElement.innerHTML = data.user.bonus_balance.toFixed(2) +` ${selectedCurrency}`
             }
                 if (selectedBalanceObject.baltype == 'deposit'){
                 selectedBalance.innerHTML = balanceElement.innerHTML;}
@@ -615,12 +616,12 @@ console.log('stavka')
 			sky.appendChild(notification);
             console.log(notification)
             if (data.baltype == 'deposit'){
-			balanceElement.innerHTML = `${(parseFloat(balanceElement.innerHTML) - data.price).toFixed(2)} F` ;
+			balanceElement.innerHTML = `${(parseFloat(balanceElement.innerHTML) - data.price).toFixed(2)}  ${selectedCurrency}` ;
                 if (selectedBalanceObject.baltype == 'deposit'){
             selectedBalance.innerHTML = balanceElement.innerHTML;}}
             else {
                 
-                bonusBalanceElement.innerHTML = `${(parseFloat(bonusBalanceElement.innerHTML)-data.price).toFixed(2)} F`;
+                bonusBalanceElement.innerHTML = `${(parseFloat(bonusBalanceElement.innerHTML)-data.price).toFixed(2)} ${selectedCurrency}`;
                 if (selectedBalanceObject.baltype == 'bonus'){
                     
 
@@ -701,7 +702,7 @@ frog.classList.add('fast-fly-from-button');
                             <img src="${userName_and_avatar[userName]}" style="width: 25px; margin-right: 10px; border-radius:30px" alt="">
                             <div style="text-align: left;overflow: auto;  -webkit-overflow-scrolling: touch;">
                               <span style="font-weight: 300; font-size: 8px; ">${userName}</span><br>
-                              <span style="font-weight: 400; font-size: 12px; ">${key} F</span>
+                              <span style="font-weight: 400; font-size: 12px; ">${key} ${selectedCurrency}</span>
                             </div>
                           </button>`
                     }}
@@ -761,7 +762,7 @@ data.forEach(bet => {
                      <img src="${bet[username]['avatar_url']}"  class="img-fakeusers"  alt="">
                      <div class="cont-fakeusers" >
                        <span style="font-weight: 300; font-size: 8px; ">${bet[username]['username']}</span><br>
-                       <span style="font-weight: 400; font-size: 12px; ">${bet[username]['price']} F</span>
+                       <span style="font-weight: 400; font-size: 12px; ">${bet[username]['price']} ${selectedCurrency}</span>
                      </div>
                      <div  class="btn btn-primary coeff bet${bet[username]['id']}"></div>
                    </button>`

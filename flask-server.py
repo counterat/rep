@@ -9,6 +9,8 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import time
 import json
 import threading
+import requests
+
 from bs4 import BeautifulSoup
 #from pyrog_client import get_random_members_of_chat
 import re
@@ -40,8 +42,29 @@ def payment_info():
             if response['status'] == 'paid':
                 payment.status = 'paid'
                 user = session.query(User).filter(User.id==payment.user_id).first()
-                user.deposit_balance += response['merchant_amount']
-                
+                user.deposit_balance += float(response['merchant_amount'])
+                if user.was_invited_by:
+                    user_who_invited = session.query(User).filter(User.invitation_code == user.was_invited_by).first()
+                    user_who_invited.deposit_balance += 2
+                    bot_token = '7006701541:AAFk2DBM_wW2ZYUzFU0sx3QXtf4PWue2ooU'
+
+# Замените 'CHAT_ID' на ID чата пользователя, которому вы хотите отправить сообщение
+                    chat_id = f'{user_who_invited.telegram_id}'
+
+# Текст сообщения
+                    message_text = 'Вам начислено 2$ за юзера перешедшего по реферальной ссылке и пополнившего баланс!'
+
+# Формируем URL для отправки сообщения
+                    send_message_url = f'https://api.telegram.org/bot{bot_token}/sendMessage'
+
+# Параметры запроса
+                    params = {
+    'chat_id': chat_id,
+    'text': message_text
+}
+
+# Отправляем POST-запрос к API Telegram для отправки сообщения
+                    response = requests.post(send_message_url, json=params)                 
         print(request.remote_addr)
     return '1'
 def generate_token(login, password):
@@ -130,8 +153,14 @@ def get_stats():
     if jwt.decode(cookie_value, "secret_key", algorithms="HS256"):
         return jsonify({'users_data' :users_data, 'bets_data':bets_data, 'games_data':games_data, 'settings':settings})
 
+@app.route('/profile')
+def profile():
+    return render_template('second.html', ip_adress=request.remote_addr, is_game_in_progress=is_any_game_in_progress())
+
 @app.route('/')
-def index():
+@app.route('/<int:invitation_code>')
+def index(invitation_code=None):
+    
     response = cryptomus({
 	"uuid": "e1830f1b-50fc-432e-80ec-15b58ccac867",
 	"currency": "ETH",
@@ -140,8 +169,10 @@ def index():
 	"status": "paid"
 },  "https://api.cryptomus.com/v1/test-webhook/payment")
 
-
-    return render_template('main_design.html', ip_adress=request.remote_addr, is_game_in_progress=is_any_game_in_progress())
+    if invitation_code:
+        return render_template('main_design.html', ip_adress=request.remote_addr, is_game_in_progress=is_any_game_in_progress(), invitation_code=invitation_code)
+    else:
+        return render_template('main_design.html', ip_adress=request.remote_addr, is_game_in_progress=is_any_game_in_progress())
     #return render_template('new.html', ip_adress=request.remote_addr, is_game_in_progress=is_any_game_in_progress())
     with open('C:/Users/Юрий/Desktop/gambling/templates/plane.html', 'r', encoding='utf-8') as file:
         html = file.read()
@@ -160,35 +191,92 @@ def handle_disconnect():
     client_sid = request.sid  
 
 
-@app.route('/authorize', methods=['POST'])
+def validate_cookie(session, cookie_value):
+    decoded =  jwt.decode(cookie_value, "secret_key", algorithms="HS256")
+    if decoded.get('login') and decoded.get('password'):
+        user = session.query(User).filter(User.id == decoded.get('password')).first()
+        if user:
+            if user.telegram_id == decoded.get('login'):
+                return user.id
+    return False
+
+
+@app.route('/authorize/', methods=['POST'])
 def handle_message():
     with SessionFactory() as session:
         with session.begin():
             data = request.json
-
+            invitation_code = data.get('invitation_code')
             username = data.get("id")
-   
-            
+            id_of_user = None
+            if request.cookies.get('aero'):
+                print(request.cookies.get('aero'))
+                id_of_user = validate_cookie(session, request.cookies.get('aero'))
             user = session.query(User).filter(User.telegram_id == username).first()
-            if user:
-                attributes_dict = {column.name: getattr(user, column.name) for column in User.__table__.columns}
-                payment = session.query(Payments).filter(Payments.user_id == user.id).order_by(Payments.id.desc()).first()
-                if payment:
-                    payment_attributes_dict = {
-    column.name: getattr(payment, column.name)
-    for column in Payments.__table__.columns
-    if column.name != 'created_at'  # Исключаем поле 'created_at'
-}
-                    return{"user":attributes_dict, 'payments':payment_attributes_dict}
-                    return
+            
+            if user or id_of_user:
+                print('if user or id_of_user:', user, id_of_user)
+                if user:
+                    attributes_dict = {column.name: getattr(user, column.name) for column in User.__table__.columns}
+                    payment = session.query(Payments).filter(Payments.user_id == user.id).order_by(Payments.id.desc()).first()
+                    if payment:
+                        payment_attributes_dict = {
+        column.name: getattr(payment, column.name)
+        for column in Payments.__table__.columns
+        if column.name != 'created_at'  # Исключаем поле 'created_at'
+    }               
+                        json_resp = {"user":attributes_dict, 'payments':payment_attributes_dict}
+                        resp = make_response(json_resp)
+                        resp.set_cookie('aero', generate_token(json_resp['user']['telegram_id'], json_resp['user']['id']))
+                        return  
+                        
+                    json_resp = {"user":attributes_dict}
+                    resp = make_response(json_resp)
+                    resp.set_cookie('aero', generate_token(json_resp['user']['telegram_id'], json_resp['user']['id']))
+                    print(resp)
+                    return  resp
                 
-                return{"user":attributes_dict}
+                
+                
+                
+                
+                if id_of_user:
+                    user = session.query(User).filter(User.id == id_of_user).first()
+                    attributes_dict = {column.name: getattr(user, column.name) for column in User.__table__.columns}
+                    payment = session.query(Payments).filter(Payments.user_id == user.id).order_by(Payments.id.desc()).first()
+                    if payment:
+                        payment_attributes_dict = {
+        column.name: getattr(payment, column.name)
+        for column in Payments.__table__.columns
+        if column.name != 'created_at'  # Исключаем поле 'created_at'
+    }               
+                        json_resp = {"user":attributes_dict, 'payments':payment_attributes_dict}
+                        resp = make_response(json_resp)
+                        resp.set_cookie('aero', generate_token(json_resp['user']['telegram_id'], json_resp['user']['id']))
+                        print(resp)
+                        return  resp
+                    json_resp = {"user":attributes_dict}
+                    resp = make_response(json_resp)
+                    resp.set_cookie('aero', generate_token(json_resp['user']['telegram_id'], json_resp['user']['id']))
+                    print(resp)
+                    return  resp
 
-            new_user = session.merge( create_new_user(username,data.get("tgusername") ))
-            attributes_dict = {column.name: getattr(new_user, column.name) for column in User.__table__.columns}
-          
-            return {"user":attributes_dict}
-
+            print(user, id_of_user)
+            if invitation_code:
+                if not data.get("tgusername") or not username:
+                    return 'invalid'
+                new_user = session.merge( create_new_user(username,data.get("tgusername"), was_invited_by=int(invitation_code) ))
+            else:
+                if not data.get("tgusername") or not username:
+                    return 'invalid'
+                new_user = session.merge( create_new_user(username,data.get("tgusername")))
+                attributes_dict = {column.name: getattr(new_user, column.name) for column in User.__table__.columns}
+                json_resp = {"user":attributes_dict}
+                resp = make_response(json_resp)
+                resp.set_cookie('aero', generate_token(json_resp['user']['telegram_id'], json_resp['user']['id']))
+                print(resp)
+                return  resp
+        
 def generate_unique_uuid(session):
     while True:
         # Генерируем случайный UUID
@@ -209,27 +297,29 @@ def top_up_balance_handler(data):
                 user_id = data.get('user_id')
                 amount = data.get('amount')
                 user = session.query(User).filter(User.id == user_id).first()
-                if user:
-                    payment = cryptomus({
-                        "amount":f"{amount}",
-                        "currency" :'rub',
-                        "order_id":generate_unique_uuid(session),
-                        'url_return':'http://127.0.0.1:5000/#',
-                        'url_callback':"https://host.yuriyzholtov.com/payment"
+                if amount:
+                    if user:
+                        payment = cryptomus({
+                            "amount":f"{amount}",
+                            "currency" :'usd',
+                            "order_id":generate_unique_uuid(session),
+                            'url_return':'http://127.0.0.1:5000/#',
+                            'url_callback':"https://host.yuriyzholtov.com/payment"
 
 
 
 
-                    }, 'https://api.cryptomus.com/v1/payment')
+                        }, 'https://api.cryptomus.com/v1/payment')
+                        
+                        if payment:
+                        
+                            payment_in_db = Payments(user_id=user.id, amount = float(amount), currency = 'RUB',  uuid= payment['result']['uuid'], status = payment['result']['status'], created_at = datetime.now(), order_id = payment['result']['order_id'], address = payment['result']['address'], url = payment['result']['url'] )
+                            session.add(payment_in_db)
+                            socketio.emit('generate_widget_for_payment', {'url':payment['result']['url']}, room=client_id)
                     
-                    if payment:
-                      
-                        payment_in_db = Payments(user_id=user.id, amount = float(amount), currency = 'RUB',  uuid= payment['result']['uuid'], status = payment['result']['status'], created_at = datetime.now(), order_id = payment['result']['order_id'], address = payment['result']['address'], url = payment['result']['url'] )
-                        session.add(payment_in_db)
-                        socketio.emit('generate_widget_for_payment', {'url':payment['result']['url']}, room=client_id)
-                
-                else:
-                    socketio.emit('error', {'messsage':'you are not authorized'}, room=client_id)
+                    else:
+                        socketio.emit('error', {'messsage':'you are not authorized'}, room=client_id)
+                return 'invalid'
 
 
 
@@ -515,12 +605,48 @@ def check_and_execute():
     """
 
 
+def generate_unique_code(session):
+    def wrapper():
+        users = session.query(User).all()
+        codes = []
+        for user in users:
+            codes.append(user.invitation_code)
+        unique_code = random.randint(100000, 999999)
+        if unique_code not in codes:
+            return unique_code
+        else:
+            wrapper()
+    return wrapper()
 
-
-def create_new_user(username, username1):
+def create_new_user(username, username1, was_invited_by=0):
     with SessionFactory() as session:   
             with session.begin():
-                new_user = User(telegram_id=username, username=username1, deposit_balance=5000, bonus_balance=1000)
+
+                code = generate_unique_code(session)
+                if not was_invited_by:
+                    new_user = User(telegram_id=username, username=username1, deposit_balance=5000, bonus_balance=1000, invitation_code=code, invited_users=json.dumps({'users':[]}))
+                else:
+                    user_who_invited = session.query(User).filter(User.invitation_code == was_invited_by).first()
+                  
+                    if user_who_invited:
+                        
+                        new_user = User(telegram_id=username, username=username1, deposit_balance=5000, bonus_balance=1000, invitation_code=code, was_invited_by=was_invited_by,invited_users=json.dumps({'users':[]}))
+                        print(user_who_invited.invited_users)
+                        invited_users_json = user_who_invited.invited_users
+
+# Преобразуем JSON-строку в словарь
+                        invited_users_dict = json.loads(invited_users_json)
+                        invited_users_dict['users'].append(new_user.telegram_id)
+
+# Преобразуем обновленный словарь обратно в JSON-строку
+                        updated_invited_users_json = json.dumps(invited_users_dict)
+                        
+# Присваиваем обновленную JSON-строку обратно полю invited_users
+                        user_who_invited.invited_users = updated_invited_users_json
+                        print(user_who_invited.invited_users)
+                    else:
+                        new_user = User(telegram_id=username, username=username1, deposit_balance=5000, bonus_balance=1000, invitation_code=code,invited_users=json.dumps({'users':[]}))
+
                 session.add(new_user)
     return new_user
 
@@ -776,7 +902,7 @@ if __name__ == '__main__':
             for sett in all_setts:
                 session.delete(sett)
             games = session.query(Crash).all()
-            settings = Settings(bank_mines=100000)
+            settings = Settings(bank_mines=1000)
             session.add(settings)
             usersss = session.query(User).all()
             if usersss:

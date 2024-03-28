@@ -2,6 +2,7 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 from aiogram.enums import ParseMode
 from aiogram.types import MenuButtonWebApp, WebAppInfo
+from aiogram.filters import Command
 import asyncio
 import requests
 from aiogram.fsm.context import FSMContext
@@ -12,9 +13,9 @@ TOKEN = '7006701541:AAFk2DBM_wW2ZYUzFU0sx3QXtf4PWue2ooU'
 
 dp = Dispatcher()
 
-def create_play_button():
+def create_play_button(invitation_code=''):
     builder = InlineKeyboardBuilder()
-    builder.button(text='Играть🚀', web_app=WebAppInfo(url= 'https://host.yuriyzholtov.com/'))
+    builder.button(text='Играть🚀', web_app=WebAppInfo(url= f'https://host.yuriyzholtov.com/{invitation_code}'))
     return builder
 
 def create_buttons_for_admin():
@@ -264,13 +265,16 @@ async def handle_detailed_stats(query:types.CallbackQuery):
         else:
             await query.message.answer('К сожалению пока нету юзеров')
     
-@dp.message(lambda F :F.text== '/start')
-async def start_handler(messsage:types.Message):
-    
-        await messsage.answer('🔥', reply_markup=create_buttons_for_admin().as_markup())
-        await messsage.answer('Для запуска, нажмите на кнопку 👇', reply_markup=create_play_button().as_markup())
-    
+@dp.message(Command('start'))
+async def start_handler(messsage, command):
         
+
+        await messsage.answer('🔥', reply_markup=create_buttons_for_admin().as_markup())
+        if command.args:
+            await messsage.answer('Для запуска, нажмите на кнопку 👇', reply_markup=create_play_button(command.args).as_markup())
+    
+        else:
+            await messsage.answer('Для запуска, нажмите на кнопку 👇', reply_markup=create_play_button().as_markup())
 
 
 async def main() -> None:

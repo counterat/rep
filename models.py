@@ -23,8 +23,9 @@ class User(Base):
     total_amount_of_money_won = Column(Float, default=0.0)
     total_amount_of_money_losed = Column(Float, default=0.0)
     was_invited_by = Column(Integer)
-    invited_users = Column(JSON)
-
+    invited_users = Column(String)
+    invitation_code = Column(Integer)
+    selected_currency = Column(String, default='USD')
 class Crash(Base):
     __tablename__ = 'crash'
     id = Column(Integer, primary_key=True)
